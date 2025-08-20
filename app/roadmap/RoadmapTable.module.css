@@ -1,0 +1,83 @@
+.regularCell {
+  background: #f8fafc;
+  color: #222;
+  font-weight: bold;
+  border-radius: 6px;
+  margin: 0 auto 4px auto;
+  display: inline-block;
+  padding: 2px 12px;
+  text-align: center;
+}
+/* Encabezado de año personalizado */
+.anioHeaderCell {
+  text-align: center !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #fff;
+  background: #3c8dbc !important;
+  letter-spacing: 0.5px;
+  border-top: 2px solid #3c8dbc;
+  border-bottom: 2px solid #3c8dbc;
+  padding: 12px 8px;
+}
+.roadmapTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+  overflow: hidden;
+}
+.roadmapTable th, .roadmapTable td {
+  border: 1px solid #e3e7ea;
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 1.08rem;
+}
+.roadmapTable th {
+  background: #3c8dbc;
+  color: #fff;
+  font-weight: 700;
+}
+.roadmapTable tr {
+  background: #fff;
+}
+.anioHeaderCell {
+  background: #3c8dbc !important;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.08rem;
+  letter-spacing: 0.5px;
+  border-top: 2px solid #3c8dbc;
+  border-bottom: 2px solid #3c8dbc;
+  padding: 12px 8px;
+}
+.anualCell {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 6px;
+  margin: 0 auto 4px auto;
+  display: inline-block;
+  padding: 2px 12px;
+}
+.cuatrimestralCell {
+  background: #fff;
+  color: #000000;
+  font-weight: 600;
+  border-radius: 6px;
+  margin: 0 auto 4px auto;
+  display: inline-block;
+  padding: 2px 12px;
+  text-align: center;
+}
+.electiva {
+  color: #0a6;
+  font-weight: 500;
+}
+.materiaModalidad {
+  color: #888;
+  font-size: 0.98em;
+  margin-left: 4px;
+}

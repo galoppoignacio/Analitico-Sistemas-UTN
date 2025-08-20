@@ -1,0 +1,438 @@
+/* Barra superior de controles */
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.exportBtn, .importBtn, .resetBtn {
+  padding: 8px 18px;
+  background: #3c8dbc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.exportBtn:hover, .importBtn:hover, .resetBtn:hover {
+  background: #24618a;
+  box-shadow: 0 4px 16px rgba(44,62,80,0.13);
+}
+.importBtn input[type="file"] {
+  display: none;
+}
+.importBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+.resetBtn {
+  background: #e74c3c;
+}
+.resetBtn:hover {
+  background: #c0392b;
+}
+.stats {
+  margin-bottom: 0;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.anioHeaderCell {
+  text-align: center !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #1976d2;
+  background: #e0f7fa !important;
+  letter-spacing: 0.5px;
+  border-top: 2px solid #b2ebf2;
+  border-bottom: 2px solid #b2ebf2;
+  padding: 12px 8px;
+}
+
+/* Encabezado de año */
+.anioHeaderRow td {
+  background: #e0f7fa !important;
+  color: #1976d2;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-top: 2px solid #b2ebf2;
+  border-bottom: 2px solid #b2ebf2;
+  text-align: left;
+  padding: 12px 8px;
+}
+.anioHeaderCell {
+  padding-left: 12px;
+}
+
+.container {
+  padding: 32px 18px 32px 18px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+  font-family: Inter, sans-serif;
+  color: #222;
+  margin-top: 32px;
+  border-right: 1px solid #e3e7ea;
+  margin-bottom: 32px;
+}
+
+
+/* Filtros y switches */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding-top: 2px;
+}
+/* Colores suaves por año */
+.anio1 { background: #f6fff7; }
+.anio2 { background: #f7fbff; }
+.anio3 { background: #fffaf6; }
+.anio4 { background: #f9f6ff; }
+.anio5 { background: #fff6fa; }
+
+/* Fila electiva */
+.electivaRow {
+  background: #f0f7fa !important;
+}
+.electivaCell {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.electivaBadge {
+  display: inline-block;
+  background: #1976d2;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+}
+  
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.filters select,
+.filters input[type="checkbox"],
+.filters button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  background: #ececec;
+}
+
+.stats {
+  margin-bottom: 24px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8f8f8;
+  box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.table th {
+  background: #3c8dbc;
+  color: #fff;
+  padding: 12px 8px;
+  text-align: left;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-right: 1px solid #e3e7ea;
+  border-bottom: 2px solid #e3e7ea;
+}
+
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e3e7ea;
+  border-right: 1px solid #e3e7ea;
+  vertical-align: middle;
+  background: inherit;
+  transition: background 0.2s;
+}
+
+/* Colores suaves por año aplicados a la fila completa */
+.anio1 td { background: #f6fff7 !important; }
+.anio2 td { background: #f7fbff !important; }
+.anio3 td { background: #fffaf6 !important; }
+.anio4 td { background: #f9f6ff !important; }
+.anio5 td { background: #fff6fa !important; }
+
+/* --- ESTADO DE MATERIA: estos colores siempre deben ir al final para que ganen prioridad sobre el color de año --- */
+.noDisponibleRow td {
+  background: #dbdbdb !important;
+  transition: background 0.3s;
+}
+.regularRow td {
+  background: #fff9c4 !important;
+  transition: background 0.3s;
+}
+.cursoRow td {
+  background: #b1dfff !important;
+  transition: background 0.3s;
+}
+.aprobadaRow td {
+  background: #d1fad1 !important;
+  transition: background 0.3s;
+}
+
+/* Color para disponible: celeste muy suave */
+.disponibleRow td {
+  background: #d0faf3 !important;
+  transition: background 0.3s;
+}
+
+.table tr:hover td {
+  background: #eaf6ef;
+  transition: background 0.2s;
+}
+
+.selectEstado {
+  padding: 4px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.unavailable {
+  color: #999;
+  font-style: italic;
+}
+
+/* Para el <th> con filtro */
+.thWithFilter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggleLabel {
+  font-size: 0.95rem;
+  user-select: none;
+  padding-top: 2px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+/* Contenedor de la barra */
+.progressContainer {
+  position: relative;
+  background: #e0e0e0;
+  border-radius: 4px;
+  height: 20px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+/* Barra interna que crece */
+.progressBar {
+  background: #4caf50;
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Texto encima de la barra */
+.progressLabel {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 20px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* input de nota */
+.notaInput {
+  width: 60px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* desactivar el input de nota si la materia no está disponible */
+.notaInput:disabled {
+  background: #f0f0f0;
+  cursor: not-allowed;
+  color: #777;
+}
+
+.resetBtn {
+  margin-bottom: 16px;
+  padding: 8px 18px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(231,76,60,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.resetBtn:hover {
+  background: #c0392b;
+  box-shadow: 0 4px 16px rgba(231,76,60,0.13);
+}
+@media (max-width: 700px) {
+  .container {
+    padding: 10px 2px 18px 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+  .table th, .table td {
+    padding: 7px 4px;
+    font-size: 0.93rem;
+  }
+  .stats {
+    font-size: 0.98rem;
+  }
+  .resetBtn {
+    font-size: 0.95rem;
+    padding: 7px 10px;
+  }
+}
+
+/* Estilo base para todos los selects */
+.selectYear,
+.selectEstado,
+.notaInput {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-select);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 6px 32px 6px 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000000;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+/* Flecha personalizada con SVG inline */
+.selectYear,
+.selectEstado {
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M0%200l5%206%205%200z'%20fill%3D'%23777'%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+/* Focus state */
+.selectYear:focus,
+.selectEstado:focus,
+.notaInput:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
+}
+
+/* Opcional: ancho adaptativo */
+.selectYear {
+  width: 80px;
+}
+
+.selectEstado {
+  width: 130px;
+}
+
+
