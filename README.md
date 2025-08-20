@@ -30,27 +30,6 @@ Este proyecto es una herramienta interactiva para la planificación académica d
 - `lib/roadmap.ts` - Algoritmo de simulación del recorrido académico.
 - `styles/` - Estilos globales y módulos CSS.
 
-## Instalación y uso
-
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/galoppoignacio/Analitico-Sistemas-UTN.git
-   cd Analitico-Sistemas-UTN
-   ```
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
-3. Inicia la aplicación en modo desarrollo:
-   ```bash
-   npm run dev
-   ```
-4. Accede a la app en [http://localhost:3000](http://localhost:3000)
-
-## Personalización
-
-- Para adaptar el plan de materias, edita el archivo `data/plan.ts`.
-- Para cambiar estilos, modifica los archivos en `styles/`.
 
 ## Tecnologías utilizadas
 - Next.js (React)
@@ -58,9 +37,6 @@ Este proyecto es una herramienta interactiva para la planificación académica d
 - Zustand (state management)
 - CSS Modules
 
-## Licencia
-
-MIT. Ver el archivo LICENSE para más información.
 
 ## Autor
 
