@@ -146,6 +146,7 @@ export default function TablaPage() {
         tableRows.push([
           m.id,
           nombreBase + (m.isElectiva ? " ★" : ""),
+          m.modalidad || "",
           m.estado === 3 ? "Aprobado" : m.estado === 2 ? "Regular" : m.estado === 1 ? "Disponible" : m.estado === 4 ? "En curso" : "No disponible",
           m.nota ?? "",
           m.materiasQueNecesitaRegulares.join(", "),
@@ -170,6 +171,7 @@ export default function TablaPage() {
             <tr>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>ID</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Nombre</th>
+              <th style={{ border: "1px solid #ccc", padding: 4 }}>Modalidad</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Estado</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Nota</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Regulares</th>
@@ -184,6 +186,7 @@ export default function TablaPage() {
                   {m.nombre}
                   {m.isElectiva && " ★"}
                 </td>
+                <td style={{ border: "1px solid #ccc", padding: 4 }}>{m.modalidad}</td>  {/* 👈 Nueva columna */}
                 <td style={{ border: "1px solid #ccc", padding: 4 }}>
                   {m.estado === 3
                     ? "Aprobado"
@@ -497,7 +500,7 @@ export default function TablaPage() {
             <table className="mt-4 w-full min-w-[600px] border-collapse overflow-hidden rounded-2xl bg-white shadow-[0_4px_20px_rgba(44,62,80,0.08)]">
               <thead className="sticky top-0 z-10">
                 <tr className="bg-gradient-to-r from-[#3c8dbc] to-[#2e86c1]">
-                  {["ID", "Nombre", "Estado", "Nota", "Regulares", "Aprobadas"].map((h) => (
+                  {["ID", "Nombre", "Modalidad", "Estado", "Nota", "Regulares", "Aprobadas"].map((h) => (
                     <th
                       key={h}
                       className="px-3 py-3 text-left text-[1.02rem] font-semibold tracking-wide text-white border-b border-white/20"
@@ -559,6 +562,7 @@ export default function TablaPage() {
                                 )}
                               </div>
                             </td>
+                            <td className={tdBase}>{m.modalidad}</td>  {/* 👈 Nueva columna */}
                             <td className={tdBase}>
                               {!checkDependencies(m) ? (
                                 <span className="italic text-[#999]">{"No disponible"}</span>
