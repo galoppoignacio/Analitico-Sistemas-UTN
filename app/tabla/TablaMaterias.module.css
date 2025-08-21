@@ -187,9 +187,6 @@
 .electivaRow {
   background: #f0f7fa !important;
 }
-.electivaCell {
-  /* Sin estilos especiales, solo la estrellita las distingue */
-}
 
 .electivaBadge {
   display: inline-block;
