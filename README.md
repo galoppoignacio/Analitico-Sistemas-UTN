@@ -11,15 +11,12 @@ Esta aplicación es un analítico interactivo para estudiantes de Ingeniería en
 - **Resumen y estadísticas:** Consulta cuántas materias llevás aprobadas, cuántas te faltan, cuántas son electivas, y tu promedio general.
 - **Importar/exportar estado:** Podés guardar tu avance en un archivo JSON y restaurarlo en cualquier momento o dispositivo.
 - **Visualización clara:** Tabla interactiva y filtros para ver tu situación académica de un vistazo. Interfaz responsive y menú adaptado a dispositivos móviles.
-- **Simulación de roadmap (experimental):** Genera un plan sugerido de cursada año a año según tu estado actual, correlatividades y modalidades. (En desarrollo)
 
 ## Estructura del Proyecto
 
 - `app/` - Componentes y páginas principales de la aplicación (Next.js).
 - `tabla/` - Tabla de materias y estados.
-- `roadmap/` - (Experimental) Lógica y visualización del roadmap académico.
 - `data/plan.ts` - Definición de materias, correlatividades, modalidades y años.
-- `lib/roadmap.ts` - Algoritmo de simulación del recorrido académico (experimental).
 - `styles/` - Estilos globales y módulos CSS.
 
 
