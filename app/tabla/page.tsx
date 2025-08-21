@@ -51,17 +51,19 @@ export default function TablaPage() {
     });
     Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
       tableRows.push([
-        `${anio}º año`, '', '', '', '', ''
+        `${anio}º año`, '', '', '', '', '', ''
       ]);
       materiasPorAnio.get(anio).forEach(m => {
-        // Buscar el nombre original por id
+        // Buscar el nombre original y modalidad por id
         const materiaOriginal = DatosMaterias.find(mat => mat.id === m.id);
         const nombreBase = materiaOriginal ? materiaOriginal.nombre : m.nombre;
+        const modalidad = materiaOriginal && materiaOriginal.modalidad ? materiaOriginal.modalidad : '';
         tableRows.push([
           m.id,
           nombreBase + (m.isElectiva ? ' ★' : ''),
           m.estado === 3 ? 'Aprobado' : m.estado === 2 ? 'Regular' : m.estado === 1 ? 'Disponible' : m.estado === 4 ? 'En curso' : 'No disponible',
           m.nota ?? '',
+          modalidad,
           m.materiasQueNecesitaRegulares.join(", "),
           m.materiasQueNecesitaAprobadas.join(", ")
         ]);
@@ -82,6 +84,9 @@ export default function TablaPage() {
 
   // Render tabla para exportar (solo para PDF, no visible)
   function TablaExport() {
+    // Importar DatosMaterias para obtener modalidad
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { DatosMaterias } = require('../../data/plan');
     return (
       <div style={{ padding: 12, background: '#fff', color: '#222', fontSize: 13 }}>
         <table style={{ borderCollapse: 'collapse', width: '100%' }}>
@@ -91,21 +96,27 @@ export default function TablaPage() {
               <th style={{ border: '1px solid #ccc', padding: 4 }}>Nombre</th>
               <th style={{ border: '1px solid #ccc', padding: 4 }}>Estado</th>
               <th style={{ border: '1px solid #ccc', padding: 4 }}>Nota</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Modalidad</th>
               <th style={{ border: '1px solid #ccc', padding: 4 }}>Regulares</th>
               <th style={{ border: '1px solid #ccc', padding: 4 }}>Aprobadas</th>
             </tr>
           </thead>
           <tbody>
-            {filteredMaterias.map(m => (
-              <tr key={m.id}>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.id}</td>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nombre}{m.isElectiva && ' ★'}</td>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.estado === 3 ? 'Aprobado' : m.estado === 2 ? 'Regular' : m.estado === 1 ? 'Disponible' : m.estado === 4 ? 'En curso' : 'No disponible'}</td>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nota ?? ''}</td>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaRegulares.join(", ")}</td>
-                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
-              </tr>
-            ))}
+            {filteredMaterias.map(m => {
+              const materiaOriginal = DatosMaterias.find(mat => mat.id === m.id);
+              const modalidad = materiaOriginal && materiaOriginal.modalidad ? materiaOriginal.modalidad : '';
+              return (
+                <tr key={m.id}>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.id}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nombre}{m.isElectiva && ' ★'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.estado === 3 ? 'Aprobado' : m.estado === 2 ? 'Regular' : m.estado === 1 ? 'Disponible' : m.estado === 4 ? 'En curso' : 'No disponible'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nota ?? ''}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{modalidad}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaRegulares.join(", ")}</td>
+                  <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -397,12 +408,16 @@ export default function TablaPage() {
               <th>Nombre</th>
               <th>Estado</th>
               <th>Nota</th>
+              <th>Modalidad</th>
               <th>Regulares</th>
               <th>Aprobadas</th>
             </tr>
           </thead>
           <tbody>
             {(() => {
+              // Importar DatosMaterias para obtener modalidad
+              // eslint-disable-next-line @typescript-eslint/no-var-requires
+              const { DatosMaterias } = require('../../data/plan');
               // Agrupar materias por año
               const materiasPorAnio = new Map();
               filteredMaterias.forEach(m => {
@@ -414,12 +429,14 @@ export default function TablaPage() {
               Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
                 rows.push(
                   <tr key={"header-" + anio} className={styles.anioHeaderRow}>
-                    <td colSpan={7} className={styles.anioHeaderCell}>
+                    <td colSpan={8} className={styles.anioHeaderCell}>
                       <span>{anio}º año</span>
                     </td>
                   </tr>
                 );
                 materiasPorAnio.get(anio).forEach(m => {
+                  const materiaOriginal = DatosMaterias.find(mat => mat.id === m.id);
+                  const modalidad = materiaOriginal && materiaOriginal.modalidad ? materiaOriginal.modalidad : '';
                   rows.push(
                     <tr
                       key={m.id}
@@ -479,6 +496,7 @@ export default function TablaPage() {
                           />
                         )}
                       </td>
+                      <td>{modalidad}</td>
                       <td>{m.materiasQueNecesitaRegulares.join(", ")}</td>
                       <td>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
                     </tr>

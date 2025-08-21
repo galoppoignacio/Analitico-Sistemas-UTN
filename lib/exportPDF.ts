@@ -41,7 +41,7 @@ export function exportAnaliticoToPDF({ filename, stats, tableRows }: {
   });
   autoTable(pdf, {
     startY: y,
-    head: [["ID", "Nombre", "Estado", "Nota", "Regulares", "Aprobadas"]],
+    head: [["ID", "Nombre", "Modalidad", "Estado", "Nota", "Regulares", "Aprobadas"]],
     body: processedRows,
     styles: { fontSize: 13, cellPadding: 6, textColor: [34,34,34] },
     headStyles: { fillColor: [30,118,210], textColor: 255, fontStyle: 'bold', fontSize: 14 },
