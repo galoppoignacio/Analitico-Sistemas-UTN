@@ -8,18 +8,119 @@ import Navbar from "../Navbar";
 import { FaCheckCircle, FaStar, FaChartBar } from "react-icons/fa";
 import { exportAnaliticoToPDF } from "../../lib/exportPDF";
 import dynamic from "next/dynamic";
+// No importar pdfjs-dist arriba, usar dynamic import dentro de la función para evitar errores en Next.js
+// Función para importar PDF de analítico de la facultad
+async function importarAnaliticoPDF(file: File): Promise<string> {
+  try {
+    if (!(window as any).pdfjsLib) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+        script.async = true;
+        script.onload = () => { resolve(null); };
+        script.onerror = (e) => { console.error('Error cargando pdfjsLib de jsdelivr', e); reject(e); };
+        document.body.appendChild(script);
+      });
+    }
+    const pdfjsLib = (window as any).pdfjsLib;
+    if (!pdfjsLib) {
+      throw new Error('No se pudo cargar pdfjsLib');
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
+    const arrayBuffer = await file.arrayBuffer();
+    let pdf;
+    try {
+      pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    } catch (err) {
+      console.error('Error en getDocument:', err);
+      throw err;
+    }
+    let texto = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      texto += content.items.map((item: any) => item.str).join(' ') + '\n';
+    }
+    return texto;
+  } catch (err) {
+    console.error('Error al leer el PDF:', err);
+    throw err;
+  }
+}
+
+// Utilidad para normalizar texto: minúsculas, sin tildes, sin signos, sin espacios
+function normalizarTexto(str: string): string {
+  return str
+    .replace(/[\r\n]+/g, " ") // reemplazar saltos de línea por espacio
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // quitar tildes
+    .replace(/[^a-z0-9áéíóúüñ\s]/gi, "") // quitar signos
+    .replace(/\s+/g, "") // quitar todos los espacios
+    .trim();
+}
+
+// Parsear materias desde el texto extraído del PDF
+function parsearMateriasDesdePDF(texto: string, materiasBase: Materia[]): Materia[] {
+  // Tabla de equivalencias: nombre actual -> variantes posibles
+  const equivalencias: Record<string, string[]> = {
+    "Sistemas y Procesos de Negocios": ["SPN", "SOR", "Sistemas y Organizaciones"],
+    "Lógica y Estructuras Discretas": ["LED", "MAD", "Matemática Discreta"],
+    "Base de Datos": ["BDA", "GDA", "Gestión de Datos"],
+  };
+  const textoNorm = normalizarTexto(texto);
+  const nuevasMaterias = materiasBase.map(m => ({ ...m, estado: 0, nota: 0 }));
+  for (const m of nuevasMaterias) {
+    const variantes = [m.nombre, ...(equivalencias[m.nombre] || [])];
+    let encontrada = false;
+    let notaEncontrada: number | null = null;
+    for (const variante of variantes) {
+      const varianteNorm = normalizarTexto(variante);
+      const idx = textoNorm.indexOf(varianteNorm);
+      if (idx !== -1) {
+        // Buscar la nota en los siguientes 20 caracteres del texto original (sin normalizar)
+        // Busco la posición del nombre en el texto original (puede haber diferencias por normalización, pero es lo más robusto posible)
+        const textoSinEspacios = texto.replace(/[\r\n]+/g, " ").replace(/\s+/g, "");
+        const varianteSinEspacios = variante.replace(/[\r\n]+/g, " ").replace(/\s+/g, "");
+        const idxOrig = textoSinEspacios.toLowerCase().indexOf(varianteSinEspacios.toLowerCase());
+        let ventana = "";
+        if (idxOrig !== -1) {
+          ventana = textoSinEspacios.slice(idxOrig + varianteSinEspacios.length, idxOrig + varianteSinEspacios.length + 20);
+        }
+        // Buscar número entre 6 y 10 en la ventana
+        const matchNota = ventana.match(/([6-9]|10)/);
+        if (matchNota && matchNota[1]) {
+          notaEncontrada = parseInt(matchNota[1], 10);
+        }
+        encontrada = true;
+        break;
+      }
+    }
+    if (encontrada) {
+      if (notaEncontrada !== null) {
+        m.estado = 3; // Aprobado
+        m.nota = notaEncontrada;
+      } else {
+        m.estado = 2; // Regular
+        m.nota = 0;
+      }
+    }
+    // Si no aparece, queda pendiente (estado 0)
+  }
+  return nuevasMaterias;
+}
 
 export default function TablaPage() {
   // --------------- Refs ---------------
   const statsRef = useRef<HTMLDivElement>(null);
   const tablaRef = useRef<HTMLDivElement>(null);
 
-  // --------------- Store (SIN CAMBIOS) ---------------
+  // --------------- Store ---------------
   const materias = useMateriasStore((state) => state.materias);
   const setMaterias = useMateriasStore((state) => state.setMaterias);
   const updateMateria = useMateriasStore((state) => state.updateMateria);
 
-  // --------------- Stats (SIN CAMBIOS) ---------------
+  // --------------- Stats ---------------
   const total = materias.filter(m => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
   const aprobadas = materias.filter(m => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
   const electivasAprob = materias.filter(m => m.isElectiva && m.estado === 3).length;
@@ -27,7 +128,7 @@ export default function TablaPage() {
   const promedioGeneral = aprobadasConNota.length > 0 ? (aprobadasConNota.reduce((acc, m) => acc + m.nota, 0) / aprobadasConNota.length).toFixed(2) : "-";
   const porcentaje = total > 0 ? ((aprobadas / total) * 100).toFixed(1) : "0";
 
-  // --------------- Export PDF (SIN CAMBIOS) ---------------
+  // --------------- Export PDF ---------------
   const handleExportPDF = () => {
     const tableRows: Array<Array<string | number>> = [];
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -60,7 +161,7 @@ export default function TablaPage() {
     });
   };
 
-  // --------------- Tabla Export oculta (SIN CAMBIOS) ---------------
+  // --------------- Tabla Export oculta ---------------
   function TablaExport() {
     return (
       <div style={{ padding: 12, background: "#fff", color: "#222", fontSize: 13 }}>
@@ -115,19 +216,19 @@ export default function TablaPage() {
   const pillBadge =
     "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm";
 
-  // --------------- Estados (SIN CAMBIOS) ---------------
+  // --------------- Estados ---------------
   const ESTADOS = ["No disponible", "Disponible", "Regular", "Aprobado", "En curso"];
 
-const getEstadoRowClass = (estado: number) => {
-  switch (estado) {
-    case 0: return "bg-gray-50";     // ❌ No disponible (gris muy claro)
-    case 1: return "bg-gray-100";    // ⭕ Disponible (gris claro)
-    case 2: return "bg-yellow-50";   // 🟡 Regular (amarillo muy suave)
-    case 3: return "bg-green-50";    // ✅ Aprobado (verde muy suave)
-    case 4: return "bg-blue-50";     // 📘 En curso (azul suave)
-    default: return "";
-  }
-};
+  const getEstadoRowClass = (estado: number) => {
+    switch (estado) {
+      case 0: return "bg-gray-50";
+      case 1: return "bg-gray-100";
+      case 2: return "bg-yellow-50";
+      case 3: return "bg-green-50";
+      case 4: return "bg-blue-50";
+      default: return "";
+    }
+  };
 
   const getYearRowClass = (anio: number) => {
     switch (anio) {
@@ -140,7 +241,7 @@ const getEstadoRowClass = (estado: number) => {
     }
   };
 
-  // --------------- Lógica original (SIN CAMBIOS) ---------------
+  // --------------- Lógica de correlatividades y handlers ---------------
   function recalcularEstados(materias: Materia[]): Materia[] {
     return materias.map(m => {
       if (m.estado === 2 || m.estado === 3 || m.estado === 4) return m;
@@ -195,42 +296,45 @@ const getEstadoRowClass = (estado: number) => {
     updateMateria(id, { nota: nuevaNota });
   };
 
-  const handleExport = () => {
-    const dataStr = JSON.stringify(materias, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    const fecha = `${yyyy}-${mm}-${dd}`;
-    a.href = url;
-    a.download = `materias-utn-${fecha}.json`;
-    document.body.appendChild(a);
-    a.click();
-    if (a.parentNode === document.body) document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
+  // Importar materias desde JSON o PDF
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = event => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (Array.isArray(data) && data.every(m => typeof m === "object")) {
-          setMaterias(data);
-          alert("Datos importados correctamente.");
-        } else {
-          alert("El archivo no tiene el formato esperado.");
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      // Importar desde PDF
+      importarAnaliticoPDF(file).then(texto => {
+        // Usar DatosMaterias como base
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { DatosMaterias } = require('../../data/plan');
+        let nuevasMaterias = parsearMateriasDesdePDF(texto, DatosMaterias);
+        // Recalcular estados de correlatividades
+        nuevasMaterias = recalcularEstados(nuevasMaterias);
+        setMaterias(nuevasMaterias);
+        // Actualizar localStorage manualmente para persistir el cambio
+        localStorage.setItem('materias-utn', JSON.stringify({ state: { materias: nuevasMaterias }, version: 0 }));
+      }).catch(() => {
+        // No alert, solo log
+        console.error('No se pudo leer el PDF.');
+      });
+    } else {
+      // Importar desde JSON
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+          if (Array.isArray(data) && data.every(m => typeof m === 'object')) {
+            setMaterias(data);
+            localStorage.setItem('materias-utn', JSON.stringify({ state: { materias: data }, version: 0 }));
+          } else {
+            console.error('El archivo no tiene el formato esperado.');
+          }
+        } catch {
+          console.error('Error al leer el archivo JSON.');
         }
-      } catch {
-        alert("Error al leer el archivo JSON.");
-      }
-    };
-    reader.readAsText(file);
+      };
+      reader.readAsText(file);
+    }
+    // Limpiar el input para permitir importar el mismo archivo de nuevo si se desea
     e.target.value = "";
   };
 
@@ -242,15 +346,16 @@ const getEstadoRowClass = (estado: number) => {
     return okReg && okAprob;
   };
 
+  // 6) Filtros & cálculos
   const [filterYear, setFilterYear] = useState<number | "all">("all");
-  const [showElectivas, setShowElectivas] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("showElectivas");
-      if (stored === "false") return false;
-      if (stored === "true") return true;
+  const [showElectivas, setShowElectivas] = useState(true);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('showElectivas');
+      if (stored === 'false') setShowElectivas(false);
+      if (stored === 'true') setShowElectivas(true);
     }
-    return true;
-  });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("showElectivas", showElectivas ? "true" : "false");
@@ -300,7 +405,6 @@ const getEstadoRowClass = (estado: number) => {
   return (
     <>
       <Navbar />
-
       {/* Contenedor principal con fondo sutil */}
       <div className="mt-6 mb-8 px-3 sm:px-6">
         <div className="mx-auto max-w-[1200px] rounded-2xl border border-[#e3e7ea] bg-white/90 shadow-[0_10px_30px_rgba(44,62,80,0.10)] backdrop-blur-sm">
@@ -309,7 +413,6 @@ const getEstadoRowClass = (estado: number) => {
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1976d2]">
               Analítico
             </h1>
-
             {/* KPIs superiores */}
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {/* Progreso */}
@@ -330,7 +433,6 @@ const getEstadoRowClass = (estado: number) => {
               </span>
             </div>
           </div>
-
           {/* Top bar de acciones */}
           <div
             className={[
@@ -339,19 +441,17 @@ const getEstadoRowClass = (estado: number) => {
             ].join(" ")}
           >
             <div className="flex flex-wrap items-center gap-3 max-[600px]:flex-col max-[600px]:items-stretch">
-              <button onClick={handleExport} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
-                Exportar JSON
+              <button onClick={handleExportPDF} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
+                Exportar PDF
               </button>
               <button onClick={handleExportPDF} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
                 Exportar PDF
               </button>
-
-              {/* Import JSON */}
+              {/* Import JSON/PDF */}
               <label className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
-                Importar JSON
-                <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
+                Importar JSON/PDF
+                <input type="file" accept="application/json,application/pdf" onChange={handleImport} className="hidden" />
               </label>
-
               {/* Filtros */}
               <div className="flex h-10 items-center gap-3 max-[600px]:justify-center">
                 {/* switch */}
@@ -372,14 +472,12 @@ const getEstadoRowClass = (estado: number) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center justify-end">
               <button className={`${btnDanger} min-w-[120px] cursor-pointer`} onClick={handleReset}>
                 Reset
               </button>
             </div>
           </div>
-
           {/* Barra de progreso visual */}
           <div className="px-5 pb-2 sm:px-8">
             <div className="relative h-5 w-full overflow-hidden rounded-full bg-[#e0e0e0]">
@@ -394,7 +492,6 @@ const getEstadoRowClass = (estado: number) => {
               </div>
             </div>
           </div>
-
           {/* Tabla */}
           <div className="w-full overflow-x-auto px-2 pb-6 sm:px-6">
             <table className="mt-4 w-full min-w-[600px] border-collapse overflow-hidden rounded-2xl bg-white shadow-[0_4px_20px_rgba(44,62,80,0.08)]">
@@ -417,7 +514,6 @@ const getEstadoRowClass = (estado: number) => {
                     if (!materiasPorAnio.has(m.anio)) materiasPorAnio.set(m.anio, []);
                     materiasPorAnio.get(m.anio)!.push(m);
                   });
-
                   const rows = [];
                   Array.from(materiasPorAnio.keys())
                     .sort((a, b) => a - b)
@@ -432,13 +528,11 @@ const getEstadoRowClass = (estado: number) => {
                           </td>
                         </tr>
                       );
-
                       materiasPorAnio.get(anio)!.forEach((m, idx) => {
                         const rowBgByYear = getYearRowClass(m.anio);
                         const rowBgByEstado = getEstadoRowClass(m.estado);
                         const electivaBg = m.isElectiva ? "bg-[#f0f7fa]" : "";
                         const zebra = idx % 2 === 1 ? "bg-black/[0.02]" : "";
-
                         const tdBase = "px-3 py-2 align-middle border-b border-[#e3e7ea]";
                         return rows.push(
                           <tr
@@ -452,7 +546,6 @@ const getEstadoRowClass = (estado: number) => {
                             ].join(" ")}
                           >
                             <td className={tdBase}>{m.id}</td>
-
                             <td className={tdBase}>
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">{m.nombre}</span>
@@ -466,7 +559,6 @@ const getEstadoRowClass = (estado: number) => {
                                 )}
                               </div>
                             </td>
-
                             <td className={tdBase}>
                               {!checkDependencies(m) ? (
                                 <span className="italic text-[#999]">{"No disponible"}</span>
@@ -492,7 +584,6 @@ const getEstadoRowClass = (estado: number) => {
                                 </select>
                               )}
                             </td>
-
                             <td className={tdBase}>
                               {m.estado === 3 && (
                                 <input
@@ -512,7 +603,6 @@ const getEstadoRowClass = (estado: number) => {
                                 />
                               )}
                             </td>
-
                             <td className={`${tdBase} text-gray-700`}>{m.materiasQueNecesitaRegulares.join(", ")}</td>
                             <td className={`${tdBase} text-gray-700`}>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
                           </tr>
@@ -523,14 +613,12 @@ const getEstadoRowClass = (estado: number) => {
                 })()}
               </tbody>
             </table>
-
             {/* Tabla oculta para export (PDF) */}
             <div ref={tablaRef} style={{ position: "absolute", left: -9999, top: 0, width: 800, background: "#fff" }}>
               <TablaExport />
             </div>
           </div>
-
-          {/* Stats ocultas para PDF (SIN CAMBIOS de lógica) */}
+          {/* Stats ocultas para PDF */}
           <div ref={statsRef} style={{ position: "absolute", left: -9999, top: 0, width: 800, background: "#fff" }}>
             <div className="mb-1.5 text-center text-[1.08rem] font-semibold">
               {progreso}% Completado <span className="font-semibold"> - Promedio: {promedio}</span>
@@ -553,7 +641,6 @@ const getEstadoRowClass = (estado: number) => {
               </li>
             </ul>
           </div>
-
           {/* Footer autor */}
           <div className="px-5 pb-8 text-center text-[#7a7a7a] sm:px-8">
             <div className="mt-3 flex flex-col items-center gap-2 text-[0.98rem]">
@@ -587,11 +674,6 @@ const getEstadoRowClass = (estado: number) => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Tabla oculta para export PDF - fuera del card para evitar clipping */}
-        <div ref={tablaRef} style={{ position: "absolute", left: -9999, top: 0, width: 800, background: "#fff" }}>
-          <TablaExport />
         </div>
       </div>
     </>

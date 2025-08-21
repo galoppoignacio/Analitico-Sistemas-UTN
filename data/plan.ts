@@ -14,7 +14,7 @@ export interface Materia {
 export const DatosMaterias: Materia[] = [
     {
         id: 1,
-        nombre: "AM1",
+        nombre: "Análisis Matemático I",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [9, 10, 17, 22, 18],
@@ -26,7 +26,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 2,
-        nombre: "AGA",
+        nombre: "Álgebra y Geometría Analítica",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [9, 17, 22, 18],
@@ -38,7 +38,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 3,
-        nombre: "FIS1",
+        nombre: "Física I",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [10, 21],
@@ -50,7 +50,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 4,
-        nombre: "INGLES",
+        nombre: "Inglés I",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [12, 23],
@@ -62,7 +62,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 5,
-        nombre: "LED/MAD",
+        nombre: "Lógica y Estructuras Discretas",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [13, 14, 19, 20],
@@ -74,7 +74,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 6,
-        nombre: "AED",
+        nombre: "Algoritmos y Estructuras de Datos",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [13, 14, 16, 19, 20, 23, 49, 50, 55],
@@ -86,7 +86,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 7,
-        nombre: "ACO",
+        nombre: "Arquitectura de Computadoras",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [15, 21],
@@ -98,7 +98,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 8,
-        nombre: "SPN/SOR",
+        nombre: "Sistemas y Procesos de Negocios",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [49, 52, 53, 56, 16, 23],
@@ -110,7 +110,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 11,
-        nombre: "ISO",
+        nombre: "Ingeniería y Sociedad",
         estado: 1,
         nota: 0,
         materiasQueActualiza: [24],
@@ -122,7 +122,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 9,
-        nombre: "AM2",
+        nombre: "Análisis Matemático II",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [22, 28, 29, 32],
@@ -134,7 +134,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 10,
-        nombre: "FIS2",
+        nombre: "Física II",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [29],
@@ -146,7 +146,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 12,
-        nombre: "INGLES 2",
+        nombre: "Inglés II",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [36],
@@ -158,7 +158,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 13,
-        nombre: "SSL",
+        nombre: "Sintaxis y Semántica de los Lenguajes",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [19, 25, 49, 50, 51, 55, 57, 68],
@@ -170,7 +170,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 14,
-        nombre: "PPR",
+        nombre: "Paradigmas de Programación",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [20, 23, 25, 49, 50, 51, 57, 58, 68],
@@ -182,7 +182,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 15,
-        nombre: "SOP",
+        nombre: "Sistemas Operativos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [26],
@@ -194,7 +194,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 16,
-        nombre: "ASI",
+        nombre: "Análisis de Sistemas de Información",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [49, 52, 53, 56, 63, 66, 19, 20, 23, 30],
@@ -206,7 +206,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 17,
-        nombre: "PYE",
+        nombre: "Probabilidad y Estadística",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [27, 28, 31, 32],
@@ -218,7 +218,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 18,
-        nombre: "ECO",
+        nombre: "Economía",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [30, 33, 34],
@@ -230,7 +230,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 19,
-        nombre: "BDA/GDA",
+        nombre: "Bases de Datos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [25, 32, 51, 52, 53, 54, 56, 57, 58, 63, 64, 65, 66, 67, 68],
@@ -242,7 +242,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 20,
-        nombre: "DDS",
+        nombre: "Desarrollo de Software",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [25, 35, 36, 51, 54, 57, 58, 59, 60, 61, 62, 65, 66, 67, 68],
@@ -254,7 +254,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 21,
-        nombre: "COM",
+        nombre: "Comunicación de Datos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [26, 35],
@@ -266,7 +266,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 22,
-        nombre: "ANumerico",
+        nombre: "Análisis Numérico",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [27, 29, 31],
@@ -278,7 +278,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 23,
-        nombre: "DSI",
+        nombre: "Diseño de Sistemas de Información",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [25, 30, 33, 36],
@@ -290,7 +290,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 24,
-        nombre: "LEG",
+        nombre: "Legislación",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [34],
@@ -302,7 +302,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 25,
-        nombre: "Ing y Calidad Software",
+        nombre: "Ingeniería y Calidad de Software",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [65, 36],
@@ -314,7 +314,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 26,
-        nombre: "Redes de datos",
+        nombre: "Redes de Datos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [35, 36, 58, 66, 67, 68],
@@ -326,7 +326,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 27,
-        nombre: "IOP",
+        nombre: "Investigación Operativa",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [64, 33],
@@ -338,7 +338,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 28,
-        nombre: "SIM",
+        nombre: "Simulación",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [31, 32],
@@ -350,7 +350,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 29,
-        nombre: "Tec Automat",
+        nombre: "Tecnologías Para la Automatización",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -362,7 +362,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 30,
-        nombre: "Adm sistemas inf",
+        nombre: "Administración de Sistemas de Información",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [59, 60, 61, 62, 63, 34, 35, 36],
@@ -374,7 +374,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 31,
-        nombre: "IA",
+        nombre: "Inteligencia Artificial",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -386,7 +386,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 32,
-        nombre: "Ciencia de datos",
+        nombre: "Ciencia de Datos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -398,7 +398,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 33,
-        nombre: "Sist Gestion",
+        nombre: "Sistemas de Gestión",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -422,7 +422,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 35,
-        nombre: "Seguridad",
+        nombre: "Seguridad en los Sistemas de Información",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -446,7 +446,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 49,
-        nombre: "Seminario",
+        nombre: "Seminario Integrador (Analista)",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -457,7 +457,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 50,
-        nombre: "BACK",
+        nombre: "Backend de Aplicaciones",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -481,7 +481,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 52,
-        nombre: "Gestion Ind. de la Prod.",
+        nombre: "Gestión Industrial de la Producción",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -493,7 +493,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 53,
-        nombre: "Gestion Mejora Proc.",
+        nombre: "Gestión de la Mejora de los Procesos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -505,7 +505,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 54,
-        nombre: "DevOps",
+        nombre: "Desarrollo y Operaciones devOPS",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -517,7 +517,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 55,
-        nombre: "DAO",
+        nombre: "Desarrollo de Aplicaciones Con Objetos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -529,7 +529,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 56,
-        nombre: "Com. Multimedial",
+        nombre: "Comunicación Multimedial en el Desarrollo de Sistemas de Información",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -541,7 +541,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 57,
-        nombre: "Arq. Soft",
+        nombre: "Arquitectura de Software",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -553,7 +553,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 58,
-        nombre: "Blockchain",
+        nombre: "Desarrollo de Tecnología Blockchain",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -565,7 +565,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 59,
-        nombre: "Creatividad e Innovación",
+        nombre: "Creatividad e Innovación en Ingeniería",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -577,7 +577,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 60,
-        nombre: "Auditoría",
+        nombre: "Auditorías de Si/Ti",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -589,7 +589,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 61,
-        nombre: "Gerenciamiento Estrat.",
+        nombre: "Gerenciamiento Estratégico",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -601,7 +601,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 62,
-        nombre: "Consultoría",
+        nombre: "Consultoría en Negocios Digitales",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -613,7 +613,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 63,
-        nombre: "Emprendimientos Tec",
+        nombre: "Emprendimientos Tecnológicos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -625,7 +625,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 64,
-        nombre: "Decisiones en Esc. Comp.",
+        nombre: "Decisiones en Escenarios Complejos",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -637,7 +637,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 65,
-        nombre: "Testing",
+        nombre: "Testing de Software",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -649,7 +649,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 66,
-        nombre: "Seguridad Desarrollo SW",
+        nombre: "Seguridad en el Desarrollo de Software",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -661,7 +661,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 67,
-        nombre: "Integracion Apps Ent. Web",
+        nombre: "Integración de Aplicaciones en Entorno Web",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
@@ -673,7 +673,7 @@ export const DatosMaterias: Materia[] = [
     },
     {
         id: 68,
-        nombre: "Ing. SW de fuentes abiertas",
+        nombre: "Ingeniería de Software de Fuentes Abiertas/Libres",
         estado: 0,
         nota: 0,
         materiasQueActualiza: [],
