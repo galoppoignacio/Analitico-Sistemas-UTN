@@ -8,12 +8,109 @@ import {
 import { DatosMaterias, Materia } from "../../data/plan";
 import { useMateriasStore } from "../../lib/materiasStore";
 
+
 import Navbar from "../Navbar";
 import styles from "./TablaMaterias.module.css";
+import { FaCheckCircle, FaStar, FaChartBar } from "react-icons/fa";
+import { exportAnaliticoToPDF } from "../../lib/exportPDF";
+import { useRef } from "react";
+import dynamic from "next/dynamic";
 
 
 // ...existing code...
 export default function TablaPage() {
+  // Referencias para exportar
+  const statsRef = useRef<HTMLDivElement>(null);
+  const tablaRef = useRef<HTMLDivElement>(null);
+  // Estado global con zustand
+  // (ya declarado arriba)
+    const materias = useMateriasStore((state) => state.materias);
+    const setMaterias = useMateriasStore((state) => state.setMaterias);
+    const updateMateria = useMateriasStore((state) => state.updateMateria);
+  
+  // Estadísticas para exportar (idéntico a /estadisticas)
+  const total = materias.filter(m => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
+  const aprobadas = materias.filter(m => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
+  const electivasAprob = materias.filter(m => m.isElectiva && m.estado === 3).length;
+  const aprobadasConNota = materias.filter(m => m.estado === 3 && m.nota > 0);
+  const promedioGeneral = aprobadasConNota.length > 0 ? (aprobadasConNota.reduce((acc, m) => acc + m.nota, 0) / aprobadasConNota.length).toFixed(2) : "-";
+  const porcentaje = total > 0 ? ((aprobadas / total) * 100).toFixed(1) : "0";
+
+  // Exportar a PDF con tabla multipágina y estadísticas
+  const handleExportPDF = () => {
+    // Armar los datos de la tabla como arrays
+    const tableRows: Array<Array<string | number>> = [];
+    // Importar DatosMaterias para obtener el nombre original
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { DatosMaterias } = require('../../data/plan');
+    // Agrupar materias por año
+    const materiasPorAnio = new Map();
+    filteredMaterias.forEach(m => {
+      if (!materiasPorAnio.has(m.anio)) materiasPorAnio.set(m.anio, []);
+      materiasPorAnio.get(m.anio).push(m);
+    });
+    Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
+      tableRows.push([
+        `${anio}º año`, '', '', '', '', ''
+      ]);
+      materiasPorAnio.get(anio).forEach(m => {
+        // Buscar el nombre original por id
+        const materiaOriginal = DatosMaterias.find(mat => mat.id === m.id);
+        const nombreBase = materiaOriginal ? materiaOriginal.nombre : m.nombre;
+        tableRows.push([
+          m.id,
+          nombreBase + (m.isElectiva ? ' ★' : ''),
+          m.estado === 3 ? 'Aprobado' : m.estado === 2 ? 'Regular' : m.estado === 1 ? 'Disponible' : m.estado === 4 ? 'En curso' : 'No disponible',
+          m.nota ?? '',
+          m.materiasQueNecesitaRegulares.join(", "),
+          m.materiasQueNecesitaAprobadas.join(", ")
+        ]);
+      });
+    });
+    exportAnaliticoToPDF({
+      filename: 'analitico-utn.pdf',
+      stats: {
+        aprobadas,
+        total,
+        electivas: electivasAprob,
+        promedio: promedioGeneral,
+        porcentaje
+      },
+      tableRows
+    });
+  };
+
+  // Render tabla para exportar (solo para PDF, no visible)
+  function TablaExport() {
+    return (
+      <div style={{ padding: 12, background: '#fff', color: '#222', fontSize: 13 }}>
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead>
+            <tr>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>ID</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Nombre</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Estado</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Nota</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Regulares</th>
+              <th style={{ border: '1px solid #ccc', padding: 4 }}>Aprobadas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMaterias.map(m => (
+              <tr key={m.id}>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.id}</td>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nombre}{m.isElectiva && ' ★'}</td>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.estado === 3 ? 'Aprobado' : m.estado === 2 ? 'Regular' : m.estado === 1 ? 'Disponible' : m.estado === 4 ? 'En curso' : 'No disponible'}</td>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.nota ?? ''}</td>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaRegulares.join(", ")}</td>
+                <td style={{ border: '1px solid #ccc', padding: 4 }}>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
   const ESTADOS = [
     "No disponible",
     "Disponible",
@@ -35,10 +132,7 @@ export default function TablaPage() {
     }
   };
 
-  // Estado global con zustand
-  const materias = useMateriasStore((state) => state.materias);
-  const setMaterias = useMateriasStore((state) => state.setMaterias);
-  const updateMateria = useMateriasStore((state) => state.updateMateria);
+  // ...existing code...
 
   // Recalcula el estado de todas las materias según correlativas
   function recalcularEstados(materias: Materia[]): Materia[] {
@@ -125,7 +219,9 @@ export default function TablaPage() {
     a.download = `materias-utn-${fecha}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    if (a.parentNode === document.body) {
+      document.body.removeChild(a);
+    }
     URL.revokeObjectURL(url);
   };
 
@@ -167,7 +263,19 @@ export default function TablaPage() {
   const [filterYear, setFilterYear] = useState<
     number | "all"
   >("all");
-  const [showElectivas, setShowElectivas] = useState(true);
+  const [showElectivas, setShowElectivas] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('showElectivas');
+      if (stored === 'false') return false;
+      if (stored === 'true') return true;
+    }
+    return true;
+  });
+
+  // Persistir showElectivas en localStorage
+  useEffect(() => {
+    localStorage.setItem('showElectivas', showElectivas ? 'true' : 'false');
+  }, [showElectivas]);
 
   const filteredMaterias = useMemo(
     () =>
@@ -230,6 +338,7 @@ export default function TablaPage() {
       <div className={styles.topBar}>
         <div className={styles.topBarLeft}>
           <button onClick={handleExport} className={styles.exportBtn}>Exportar JSON</button>
+          <button onClick={handleExportPDF} className={styles.exportBtn}>Exportar PDF</button>
           <label className={styles.importBtn}>Importar JSON<input type="file" accept="application/json" onChange={handleImport} />
           </label>
           <div className={styles.filters}>
@@ -254,7 +363,7 @@ export default function TablaPage() {
           </button>
         </div>
       </div>
-      {/* Porcentaje de avance arriba de la tabla */}
+      {/* Barra de progreso y promedio visibles */}
       <div style={{ maxWidth: '100%', width: '100%', margin: '0 auto 18px auto' }}>
         <div style={{ fontWeight: 600, fontSize: '1.08rem', marginBottom: 6, textAlign: 'center' }}>{progreso}% Completado <span className={styles.promedioBadge}> - Promedio: {promedio}</span></div>
         <div className={styles.progressContainer} style={{ width: '100%' }}>
@@ -263,6 +372,22 @@ export default function TablaPage() {
             style={{ width: `${progreso}%` }}
           />
         </div>
+      </div>
+      {/* Estadísticas adicionales solo para PDF (ocultas en pantalla) */}
+      <div ref={statsRef} style={{ position: 'absolute', left: -9999, top: 0, width: 800, background: '#fff' }}>
+        <div style={{ fontWeight: 600, fontSize: '1.08rem', marginBottom: 6, textAlign: 'center' }}>{progreso}% Completado <span className={styles.promedioBadge}> - Promedio: {promedio}</span></div>
+        <div className={styles.progressContainer} style={{ width: '100%' }}>
+          <div
+            className={styles.progressBar}
+            style={{ width: `${progreso}%` }}
+          />
+        </div>
+        <ul style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'center', listStyle: 'none', padding: 0, margin: '18px 0 0 0' }}>
+          <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaCheckCircle color="#1976d2" /> <b>Materias aprobadas:</b> {aprobadas}/{total}</li>
+          <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaStar color="#1976d2" /> <b>Electivas aprobadas:</b> {electivasAprob}/7</li>
+          <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaChartBar color="#1976d2" /> <b>Promedio general:</b> {promedioGeneral}</li>
+          <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><FaChartBar color="#1976d2" /> <b>Porcentaje completado:</b> {porcentaje}%</li>
+        </ul>
       </div>
       <div className={styles.tableScroll}>
         <table className={styles.table}>
@@ -343,9 +468,10 @@ export default function TablaPage() {
                             value={m.nota ?? 0}
                             min={6}
                             max={10}
+                            step={1}
                             onFocus={e => (e.target as HTMLInputElement).select()}
                             onChange={e => {
-                              let value = Number(e.target.value);
+                              let value = Math.round(Number(e.target.value));
                               if (value < 6) value = 6;
                               if (value > 10) value = 10;
                               handleNotaChange(m.id, value);
@@ -363,6 +489,10 @@ export default function TablaPage() {
             })()}
           </tbody>
         </table>
+        {/* Render tabla solo para exportar (oculto en pantalla) */}
+        <div ref={tablaRef} style={{ position: 'absolute', left: -9999, top: 0, width: 800, background: '#fff' }}>
+          <TablaExport />
+        </div>
       </div>
       {/* Autor y redes */}
       <div style={{ marginTop: 40, color: '#888', fontSize: '0.98rem', textAlign: 'center' }}>

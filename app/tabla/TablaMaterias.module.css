@@ -188,8 +188,7 @@
   background: #f0f7fa !important;
 }
 .electivaCell {
-  font-weight: 600;
-  color: #1976d2;
+  /* Sin estilos especiales, solo la estrellita las distingue */
 }
 
 .electivaBadge {

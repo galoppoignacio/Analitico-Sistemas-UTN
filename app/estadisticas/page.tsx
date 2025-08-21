@@ -1,9 +1,12 @@
 "use client";
 
+
 import Navbar from "../Navbar";
 import styles from "./Estadisticas.module.css";
 import { useMateriasStore } from "../../lib/materiasStore";
 import { FaCheckCircle, FaClipboardList, FaStar, FaChartBar } from "react-icons/fa";
+import { useRef, useState } from "react";
+
 
 export default function EstadisticasPage() {
   const materias = useMateriasStore((state) => state.materias);
