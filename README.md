@@ -1,16 +1,14 @@
 # Analitico-Sistemas-UTN
 
-# Analitico-Sistemas-UTN
-
-Esta aplicación es un analítico interactivo para estudiantes de Ingeniería en Sistemas de Información (UTN). Permite llevar un registro visual y actualizado de todas las materias de la carrera, su estado (aprobada, regular, pendiente, en curso), notas, porcentaje de avance y mucho más.
+Esta aplicación es un analítico interactivo para estudiantes de Ingeniería en Sistemas de Información (UTN). Permite llevar un registro de todas las materias de la carrera, su estado (aprobada, regular, pendiente, en curso), notas, porcentaje de avance y promedio.
 
 ## Características principales
 
-- **Registro de materias:** Marca materias como aprobadas, regulares, en curso o pendientes. Guarda automáticamente tu progreso.
+- **Registro de materias:** Marca materias como aprobadas, regulares, en curso o pendientes. Guarda tu progreso.
 - **Porcentaje de avance:** Visualiza el porcentaje completado de la carrera en tiempo real.
 - **Resumen y estadísticas:** Consulta cuántas materias llevás aprobadas, cuántas te faltan, cuántas son electivas, y tu promedio general.
 - **Importar/exportar estado:** Podés guardar tu avance en un archivo JSON y restaurarlo en cualquier momento o dispositivo.
-- **Visualización clara:** Tabla interactiva y filtros para ver tu situación académica de un vistazo. Interfaz responsive y menú adaptado a dispositivos móviles.
+- **Visualización clara:** Tabla interactiva para ver tu situación académica de un vistazo. Interfaz responsive y menú adaptado a dispositivos móviles.
 
 ## Estructura del Proyecto
 

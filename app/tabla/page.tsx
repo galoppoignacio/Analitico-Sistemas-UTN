@@ -40,6 +40,46 @@ export default function TablaPage() {
   const setMaterias = useMateriasStore((state) => state.setMaterias);
   const updateMateria = useMateriasStore((state) => state.updateMateria);
 
+  // Recalcula el estado de todas las materias según correlativas
+  function recalcularEstados(materias: Materia[]): Materia[] {
+    return materias.map(m => {
+      // Si ya está regular, aprobado o en curso, no cambiar
+      if (m.estado === 2 || m.estado === 3 || m.estado === 4) return m;
+      // Si no tiene correlativas, está disponible
+      const okReg = m.materiasQueNecesitaRegulares.every(
+        (rid) => materias.find((x) => x.id === rid)?.estado === 2 || materias.find((x) => x.id === rid)?.estado === 3
+      );
+      const okAprob = m.materiasQueNecesitaAprobadas.every(
+        (rid) => materias.find((x) => x.id === rid)?.estado === 3
+      );
+      if (okReg && okAprob) {
+        return { ...m, estado: 1 };
+      } else {
+        return { ...m, estado: 0 };
+      }
+    });
+  }
+
+  // Handlers
+  const handleEstadoChange = (id: number, newEstado: number) => {
+    updateMateria(id, {
+      estado: newEstado,
+      nota: newEstado === 3 ? materias.find((m) => m.id === id)?.nota : undefined,
+    });
+    // Recalcular estados después de cambiar
+    setTimeout(() => {
+      setMaterias(recalcularEstados(
+        materias.map(m => m.id === id ? { ...m, estado: newEstado } : m)
+      ));
+    }, 0);
+  };
+
+  const handleReset = () => {
+    if (confirm("Reiniciar materias al plan original")) {
+      setMaterias(recalcularEstados(DatosMaterias));
+    }
+  };
+
   // Sincronización con LocalStorage 
   useEffect(() => {
     const key = `materias_local`;
@@ -64,21 +104,9 @@ export default function TablaPage() {
   }, [materias]);
 
   // Handlers
-  const handleEstadoChange = (id: number, newEstado: number) => {
-    updateMateria(id, {
-      estado: newEstado,
-      nota: newEstado === 3 ? materias.find((m) => m.id === id)?.nota : undefined,
-    });
-  };
-
+  // ...existing code...
   const handleNotaChange = (id: number, nuevaNota: number) => {
     updateMateria(id, { nota: nuevaNota });
-  };
-
-  const handleReset = () => {
-    if (confirm("Reiniciar materias al plan original")) {
-      setMaterias(DatosMaterias);
-    }
   };
 
   // Exportar materias a JSON

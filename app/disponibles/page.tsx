@@ -5,25 +5,8 @@ import Navbar from "../Navbar";
 export default function DisponiblesPage() {
   const materias = useMateriasStore((state) => state.materias);
 
-  // Lógica de disponibilidad igual que en la tabla
-  function checkDisponible(m) {
-    // Solo cuenta como regular si estado === 2, y como aprobada si estado === 3
-    const okReg = m.materiasQueNecesitaRegulares.every(
-      (rid) => {
-        const mat = materias.find((x) => x.id === rid);
-        return mat && (mat.estado === 2 || mat.estado === 3);
-      }
-    );
-    const okAprob = m.materiasQueNecesitaAprobadas.every(
-      (rid) => {
-        const mat = materias.find((x) => x.id === rid);
-        return mat && mat.estado === 3;
-      }
-    );
-    return okReg && okAprob && m.estado === 0; // Solo las que están "pendientes"
-  }
-
-  const disponibles = materias.filter(checkDisponible);
+  // Mostrar materias con estado === 1 (disponible)
+  const disponibles = materias.filter(m => m.estado === 1);
 
   // Agrupar por año
   function groupByYear(arr) {
