@@ -1,18 +1,19 @@
 "use client";
+import "../../styles/globals.css";
+
 import { useMateriasStore } from "../../lib/materiasStore";
 import Navbar from "../Navbar";
 
-  
 export default function DisponiblesPage() {
   const materias = useMateriasStore((state) => state.materias);
 
   // Mostrar materias con estado === 1 (disponible)
-  const disponibles = materias.filter(m => m.estado === 1);
+  const disponibles = materias.filter((m) => m.estado === 1);
 
   // Agrupar por año
   function groupByYear(arr) {
     const map = new Map();
-    arr.forEach(m => {
+    arr.forEach((m) => {
       const year = m.anio || 0;
       if (!map.has(year)) map.set(year, []);
       map.get(year).push(m);
@@ -20,53 +21,68 @@ export default function DisponiblesPage() {
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]);
   }
 
-  const normales = disponibles.filter(m => !m.isElectiva);
-  const electivas = disponibles.filter(m => m.isElectiva);
+  const normales = disponibles.filter((m) => !m.isElectiva);
+  const electivas = disponibles.filter((m) => m.isElectiva);
   const normalesPorAnio = groupByYear(normales);
   const electivasPorAnio = groupByYear(electivas);
 
   return (
     <>
       <Navbar />
-      <div style={{ maxWidth: 900, margin: '32px auto', padding: '1.5rem', background: '#f8fafc', borderRadius: 12, boxShadow: '0 2px 12px rgba(44,62,80,0.07)' }}>
-        <h1 style={{ fontSize: '2rem', color: '#3c8dbc', marginBottom: 18, textAlign: 'center' }}>Materias Disponibles</h1>
-        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <h2 style={{ fontSize: '1.2rem', color: '#222', marginBottom: 10 }}>Materias</h2>
+      <div className="my-20 md:mx-auto mx-4 max-w-5xl rounded-2xl bg-gradient-to-br from-sky-50 via-white to-sky-100 p-8 shadow-md">
+        <h1 className="mb-4 text-center text-3xl font-bold tracking-tight text-sky-700">
+          Materias Disponibles
+        </h1>
+        <p className="mb-10 text-center text-base text-slate-700 max-w-2xl mx-auto">
+          A continuación se muestran las materias que ya podés cursar según tu avance en la carrera. 
+          Están organizadas por año y diferenciadas entre materias obligatorias y electivas. Esta vista 
+          te ayuda a planificar de manera más clara tu próximo cuatrimestre.
+        </p>
+
+        <div className="grid gap-10 sm:grid-cols-2">
+          {/* Materias */}
+          <div>
+            <h2 className="mb-4 text-xl font-semibold text-slate-800">Materias</h2>
             {normalesPorAnio.length === 0 ? (
-              <div style={{ color: '#888', fontStyle: 'italic' }}>No hay materias disponibles.</div>
+              <p className="italic text-slate-400">No hay materias disponibles.</p>
             ) : (
-              <>
+              <div className="space-y-6">
                 {normalesPorAnio.map(([anio, arr]) => (
-                  <div key={anio} style={{ marginBottom: 14 }}>
-                    <div style={{ fontWeight: 600, color: '#3c8dbc', marginBottom: 4 }}>{anio > 0 ? `${anio}º año` : 'Sin año'}</div>
-                    <ul style={{ paddingLeft: 18, marginBottom: 0 }}>
-                      {arr.map(m => (
-                        <li key={m.id} style={{ marginBottom: 6 }}>{m.nombre}</li>
+                  <div key={anio}>
+                    <div className="mb-2 font-semibold text-sky-600">
+                      {anio > 0 ? `${anio}º año` : "Sin año"}
+                    </div>
+                    <ul className="list-disc space-y-1 pl-6 text-slate-700">
+                      {arr.map((m) => (
+                        <li key={m.id}>{m.nombre}</li>
                       ))}
                     </ul>
                   </div>
                 ))}
-              </>
+              </div>
             )}
           </div>
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <h2 style={{ fontSize: '1.2rem', color: '#222', marginBottom: 10 }}>Electivas</h2>
+
+          {/* Electivas */}
+          <div>
+            <h2 className="mb-4 text-xl font-semibold text-slate-800">Electivas</h2>
             {electivasPorAnio.length === 0 ? (
-              <div style={{ color: '#888', fontStyle: 'italic' }}>No hay electivas disponibles.</div>
+              <p className="italic text-slate-400">No hay electivas disponibles.</p>
             ) : (
-              <>
+              <div className="space-y-6">
                 {electivasPorAnio.map(([anio, arr]) => (
-                  <div key={anio} style={{ marginBottom: 14 }}>
-                    <div style={{ fontWeight: 600, color: '#3c8dbc', marginBottom: 4 }}>{anio > 0 ? `${anio}º año` : 'Sin año'}</div>
-                    <ul style={{ paddingLeft: 18, marginBottom: 0 }}>
-                      {arr.map(m => (
-                        <li key={m.id} style={{ marginBottom: 6 }}>{m.nombre}</li>
+                  <div key={anio}>
+                    <div className="mb-2 font-semibold text-sky-600">
+                      {anio > 0 ? `${anio}º año` : "Sin año"}
+                    </div>
+                    <ul className="list-disc space-y-1 pl-6 text-slate-700">
+                      {arr.map((m) => (
+                        <li key={m.id}>{m.nombre}</li>
                       ))}
                     </ul>
                   </div>
                 ))}
-              </>
+              </div>
             )}
           </div>
         </div>

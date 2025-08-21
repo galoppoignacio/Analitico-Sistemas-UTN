@@ -10,7 +10,7 @@ import { useState, useCallback } from "react";
 // - Accesible (aria-* + focus-visible)
 
 const links = [
-  { href: "/", label: "Inicio" },
+  // { href: "/", label: "Inicio" },
   { href: "/tabla", label: "Analítico" },
   { href: "/disponibles", label: "Materias Disponibles" },
   { href: "/estadisticas", label: "Estadísticas" },
@@ -38,13 +38,13 @@ export default function Navbar() {
         {/* Brand */}
         <div className="flex items-center gap-2">
           <Link
-            href="/"
+            href="/tabla"
             className="flex items-center gap-2 rounded-xl px-2 py-1 font-semibold tracking-wide text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             onClick={closeMenu}
           >
             <span className="text-xl leading-none">📘</span>
-            <span className="hidden sm:inline">Proyecto de Materias</span>
-            <span className="sm:hidden">Materias</span>
+            <span className="hidden md:inline">Materias Ingenieria en Sistemas UTN FRC</span>
+            <span className="md:hidden">Materias Ing. Sistemas UTN FRC</span>
           </Link>
         </div>
 

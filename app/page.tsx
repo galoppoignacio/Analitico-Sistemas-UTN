@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="mx-auto my-10 flex min-h-[80vh] max-w-2xl flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 via-sky-100 to-sky-200 px-6 py-12 shadow-md">
+    <main className="my-20 md:mx-auto mx-4 flex min-h-[80vh] max-w-2xl flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 via-sky-100 to-sky-200 px-6 py-12 shadow-md">
 
       {/* Título */}
       <h1 className="mb-4 text-center text-4xl font-extrabold tracking-tight text-sky-700 sm:text-5xl">
