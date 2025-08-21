@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { useState } from "react";
 import styles from "./Navbar.module.css";
@@ -15,6 +16,8 @@ export default function Navbar() {
   <Link href="/" className={styles["navbar-link"]}>Inicio</Link>
   <Link href="/tabla" className={styles["navbar-link"]}>Analitico</Link>
   <Link href="/disponibles" className={styles["navbar-link"]}>Materias Disponibles</Link>
+  <Link href="/estadisticas" className={styles["navbar-link"]}>Estadísticas</Link>
+  <Link href="/contacto" className={styles["navbar-link"]}>Contacto</Link>
   <Link href="/roadmap" className={styles["navbar-link"]}>Roadmap</Link>
       </div>
     </nav>

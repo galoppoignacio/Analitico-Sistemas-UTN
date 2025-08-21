@@ -216,6 +216,7 @@ export default function TablaPage() {
             <span className={styles.toggleLabel}>
               {showElectivas ? "Con electivas" : "Sin electivas"}
             </span>
+            <span className={styles.electivaBadge} title="Materia electiva">★</span>
           </div>
         </div>
         <div style={{ flex: 1 }} />

@@ -33,8 +33,8 @@ export default function RoadmapPage() {
   const estadoActual = useMemo(() => {
     const estado: Record<number, "aprobada" | "regular" | "pendiente" | "disponible" | "en curso"> = {};
     materias.forEach(m => {
-      if (m.estado === 3) estado[m.id] = "aprobada";
-      else if (m.estado === 2) estado[m.id] = "regular";
+  if (m.estado === 3) estado[m.id] = "aprobada";
+  else if (m.estado === 2) estado[m.id] = "regular";
       else if (m.estado === 4) estado[m.id] = "en curso";
       else if (m.estado === 1) estado[m.id] = "disponible";
       else estado[m.id] = "pendiente";

@@ -1,0 +1,27 @@
+.mainStats {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+}
+
+.statsList {
+  font-size: 1.2rem;
+  line-height: 2;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 1rem 0;
+}
+
+.statsList li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.detalle {
+  margin-top: 2rem;
+  color: #555;
+  font-size: 1rem;
+}

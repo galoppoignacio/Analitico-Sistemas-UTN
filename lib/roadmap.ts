@@ -61,7 +61,7 @@ export function calcularRoadmap(
   while (materiasPendientes().length > 0 && anioSimulado < maxAnios) {
     // 1. Materias regulares (estado 2) que no estén ya en "Rendir"
     if (cuatrimestreActual === 1) { // Solo agregar "Rendir" una vez por año
-      const regulares = materiasSim.filter(m => m.estado === 2 && !m.isElectiva && !m.nombre.toLowerCase().includes("seminario") && !materiasYaEnRendir.has(m.id));
+    const regulares = materiasSim.filter(m => m.estado === 2 && !m.isElectiva && !m.nombre.toLowerCase().includes("seminario") && !materiasYaEnRendir.has(m.id));
       if (regulares.length > 0) {
         steps.push({ year, cuatrimestre: 'rendir', materias: regulares });
         regulares.forEach(m => materiasYaEnRendir.add(m.id));

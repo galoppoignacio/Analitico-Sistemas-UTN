@@ -48,7 +48,7 @@ export default function RoadmapTable({ steps }: Props) {
 
   // Buscar materias regulares (estado 2) para la columna "Rendir"
   const getRegulares = (mats: Materia[] = []) =>
-    mats.filter(m => m.estado === 2);
+  mats.filter(m => m.estado === 2);
 
   // Filtrar materias que NO estén regulares para las columnas de cursada
   const filtrarNoRegulares = (mats: Materia[] = []) =>

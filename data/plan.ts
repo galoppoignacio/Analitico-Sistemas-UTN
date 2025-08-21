@@ -129,7 +129,7 @@ export const DatosMaterias: Materia[] = [
         materiasQueNecesitaRegulares: [1, 2],
         materiasQueNecesitaAprobadas: [],
         isElectiva: false,
-        anio: 1,
+        anio: 2, // Corregido a 2do año
         modalidad: "A",
     },
     {

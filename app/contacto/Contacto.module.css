@@ -1,0 +1,57 @@
+.mainForm {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form label {
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form input, .form textarea, .form select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 1rem;
+}
+
+.form textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.form button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.form button:hover {
+  background: #125ea7;
+}
+
+.confirmacion {
+  color: #1976d2;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 2rem;
+}
