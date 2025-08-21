@@ -1,27 +1,59 @@
+
 .mainStats {
   max-width: 600px;
-  margin: 2rem auto;
-  padding: 24px;
-  background: #f8fafc;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px #0001;
+  margin: 2.5rem auto;
+  padding: 32px 24px 28px 24px;
+  background: linear-gradient(135deg, #e3f0ff 0%, #f8fafc 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #0002;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
 }
 
 .statsList {
-  font-size: 1.2rem;
-  line-height: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
   list-style: none;
   padding: 0;
-  margin: 2rem 0 1rem 0;
+  margin: 2.2rem 0 1.2rem 0;
 }
 
 .statsList li {
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
+  flex: 1 1 220px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1.2rem 1rem 1.1rem 1rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.18rem;
+  font-weight: 500;
+  color: #234;
+  border-left: 5px solid #1976d2;
+  transition: box-shadow 0.2s;
+}
+.statsList li:hover {
+  box-shadow: 0 4px 16px #1976d233;
+  background: #e3f0ff44;
+}
+
+.statsIcon {
+  font-size: 2.1rem;
+  margin-right: 0.5rem;
+  color: #1976d2;
+  flex-shrink: 0;
 }
 
 .detalle {
-  margin-top: 2rem;
-  color: #555;
-  font-size: 1rem;
+  margin-top: 2.5rem;
+  color: #1976d2;
+  font-size: 1.08rem;
+  text-align: center;
+  background: #e3f0ff;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  box-shadow: 0 1px 4px #1976d211;
 }
