@@ -2,6 +2,7 @@
 import { useMateriasStore } from "../../lib/materiasStore";
 import Navbar from "../Navbar";
 
+  
 export default function DisponiblesPage() {
   const materias = useMateriasStore((state) => state.materias);
 

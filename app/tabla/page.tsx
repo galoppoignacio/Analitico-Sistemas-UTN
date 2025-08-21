@@ -264,104 +264,106 @@ export default function TablaPage() {
           />
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Estado</th>
-            <th>Nota</th>
-            <th>Regulares</th>
-            <th>Aprobadas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(() => {
-            // Agrupar materias por año
-            const materiasPorAnio = new Map();
-            filteredMaterias.forEach(m => {
-              if (!materiasPorAnio.has(m.anio)) materiasPorAnio.set(m.anio, []);
-              materiasPorAnio.get(m.anio).push(m);
-            });
-            // Renderizar por año
-            const rows = [];
-            Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
-              rows.push(
-                <tr key={"header-" + anio} className={styles.anioHeaderRow}>
-                  <td colSpan={7} className={styles.anioHeaderCell}>
-                    <span>{anio}º año</span>
-                  </td>
-                </tr>
-              );
-              materiasPorAnio.get(anio).forEach(m => {
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th>Nota</th>
+              <th>Regulares</th>
+              <th>Aprobadas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              // Agrupar materias por año
+              const materiasPorAnio = new Map();
+              filteredMaterias.forEach(m => {
+                if (!materiasPorAnio.has(m.anio)) materiasPorAnio.set(m.anio, []);
+                materiasPorAnio.get(m.anio).push(m);
+              });
+              // Renderizar por año
+              const rows = [];
+              Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
                 rows.push(
-                  <tr
-                    key={m.id}
-                    className={
-                      `${styles.row} ` +
-                      (m.isElectiva ? styles.electivaRow : "") +
-                      (m.anio ? ` ${styles["anio" + m.anio]}` : "") +
-                      ` ${getEstadoRowClass(m.estado)}`
-                    }
-                  >
-                    <td>{m.id}</td>
-                    <td className={m.isElectiva ? styles.electivaCell : undefined}>
-                      {m.nombre}
-                      {m.isElectiva && (
-                        <span className={styles.electivaBadge} title="Materia electiva">★</span>
-                      )}
+                  <tr key={"header-" + anio} className={styles.anioHeaderRow}>
+                    <td colSpan={7} className={styles.anioHeaderCell}>
+                      <span>{anio}º año</span>
                     </td>
-                    <td>
-                      { !checkDependencies(m) ? (
-                        <span className={styles.unavailable}>
-                          {ESTADOS[0]}
-                        </span>
-                      ) : (
-                        <select
-                          className={styles.selectEstado}
-                          value={m.estado}
-                          onChange={e =>
-                            handleEstadoChange(m.id, Number(e.target.value))
-                          }
-                          disabled={!checkDependencies(m)}
-                        >
-                          {/* Estado: 1=Disponible, 2=Regular, 3=Aprobado, 4=En curso */}
-                          {[1,2,3,4].map((val) => (
-                            <option key={val} value={val}>
-                              {ESTADOS[val]}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </td>
-                    <td>
-                      {m.estado === 3 && (
-                        <input
-                          type="number"
-                          className={styles.notaInput}
-                          value={m.nota ?? 0}
-                          min={6}
-                          max={10}
-                          onFocus={e => (e.target as HTMLInputElement).select()}
-                          onChange={e => {
-                            let value = Number(e.target.value);
-                            if (value < 6) value = 6;
-                            if (value > 10) value = 10;
-                            handleNotaChange(m.id, value);
-                          }}
-                        />
-                      )}
-                    </td>
-                    <td>{m.materiasQueNecesitaRegulares.join(", ")}</td>
-                    <td>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
                   </tr>
                 );
+                materiasPorAnio.get(anio).forEach(m => {
+                  rows.push(
+                    <tr
+                      key={m.id}
+                      className={
+                        `${styles.row} ` +
+                        (m.isElectiva ? styles.electivaRow : "") +
+                        (m.anio ? ` ${styles["anio" + m.anio]}` : "") +
+                        ` ${getEstadoRowClass(m.estado)}`
+                      }
+                    >
+                      <td>{m.id}</td>
+                      <td className={m.isElectiva ? styles.electivaCell : undefined}>
+                        {m.nombre}
+                        {m.isElectiva && (
+                          <span className={styles.electivaBadge} title="Materia electiva">★</span>
+                        )}
+                      </td>
+                      <td>
+                        { !checkDependencies(m) ? (
+                          <span className={styles.unavailable}>
+                            {ESTADOS[0]}
+                          </span>
+                        ) : (
+                          <select
+                            className={styles.selectEstado}
+                            value={m.estado}
+                            onChange={e =>
+                              handleEstadoChange(m.id, Number(e.target.value))
+                            }
+                            disabled={!checkDependencies(m)}
+                          >
+                            {/* Estado: 1=Disponible, 2=Regular, 3=Aprobado, 4=En curso */}
+                            {[1,2,3,4].map((val) => (
+                              <option key={val} value={val}>
+                                {ESTADOS[val]}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </td>
+                      <td>
+                        {m.estado === 3 && (
+                          <input
+                            type="number"
+                            className={styles.notaInput}
+                            value={m.nota ?? 0}
+                            min={6}
+                            max={10}
+                            onFocus={e => (e.target as HTMLInputElement).select()}
+                            onChange={e => {
+                              let value = Number(e.target.value);
+                              if (value < 6) value = 6;
+                              if (value > 10) value = 10;
+                              handleNotaChange(m.id, value);
+                            }}
+                          />
+                        )}
+                      </td>
+                      <td>{m.materiasQueNecesitaRegulares.join(", ")}</td>
+                      <td>{m.materiasQueNecesitaAprobadas.join(", ")}</td>
+                    </tr>
+                  );
+                });
               });
-            });
-            return rows;
-          })()}
-        </tbody>
-      </table>
+              return rows;
+            })()}
+          </tbody>
+        </table>
+      </div>
       {/* Autor y redes */}
       <div style={{ marginTop: 40, color: '#888', fontSize: '0.98rem', textAlign: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>

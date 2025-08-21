@@ -1,3 +1,12 @@
+@media (max-width: 400px) {
+  .navbar-link {
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+  .navbar-content {
+    gap: 10px;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 .navbar {
