@@ -1,4 +1,3 @@
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -41,7 +40,7 @@ export function exportAnaliticoToPDF({ filename, stats, tableRows }: {
   });
   autoTable(pdf, {
     startY: y,
-    head: [["ID", "Nombre", "Modalidad", "Estado", "Nota", "Regulares", "Aprobadas"]],
+    head: [["Nombre", "Modalidad", "Estado", "Nota", "Regulares", "Aprobadas"]],
     body: processedRows,
     styles: { fontSize: 13, cellPadding: 6, textColor: [34,34,34] },
     headStyles: { fillColor: [30,118,210], textColor: 255, fontStyle: 'bold', fontSize: 14 },
@@ -65,6 +64,31 @@ export function exportAnaliticoToPDF({ filename, stats, tableRows }: {
       pdf.setFontSize(11);
       pdf.setTextColor("#888");
       pdf.text(`Página ${data.pageNumber} de ${pageCount}`, pdf.internal.pageSize.getWidth() - 120, pdf.internal.pageSize.getHeight() - 20);
+    }
+  });
+  pdf.save(filename);
+}
+
+export function exportAnaliticoImportableToPDF({ filename, materias }: { filename: string, materias: any[] }) {
+  const { default: jsPDF } = require('jspdf');
+  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  pdf.setFontSize(16);
+  pdf.text("Analítico UTN - Exportación Importable", 40, 50);
+  pdf.setFontSize(12);
+  let y = 90;
+  materias.forEach(m => {
+    if (m.estado === 3 || m.estado === 2) {
+      // Solo materias aprobadas o regulares
+      let linea = m.nombre;
+      if (m.estado === 3 && m.nota) {
+        linea += ` ${m.nota}`;
+      }
+      pdf.text(linea, 40, y);
+      y += 22;
+      if (y > 780) {
+        pdf.addPage();
+        y = 50;
+      }
     }
   });
   pdf.save(filename);

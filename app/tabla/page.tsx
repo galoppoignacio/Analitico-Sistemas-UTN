@@ -69,7 +69,48 @@ function parsearMateriasDesdePDF(texto: string, materiasBase: Materia[]): Materi
     "Base de Datos": ["BDA", "GDA", "Gestión de Datos"],
   };
   const textoNorm = normalizarTexto(texto);
-  const nuevasMaterias = materiasBase.map(m => ({ ...m, estado: 0, nota: 0 }));
+    const nuevasMaterias = materiasBase.map(m => ({ ...m, estado: 0, nota: 0 }));  
+  
+    for (const m of nuevasMaterias) {
+      const variantes = [m.nombre, ...(equivalencias[m.nombre] || [])];
+      let encontrada = false;
+      let notaEncontrada: number | null = null;
+      for (const variante of variantes) {
+        // Regex: nombre + solo espacios/saltos de línea + nota (6-10) + palabra separadora o fin
+        const regex = new RegExp(
+          variante.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+          "[ \t\r\n]{1,5}(6|7|8|9|10)(?![0-9])",
+          "i"
+        );
+        const match = texto.match(regex);
+        if (match) {
+          notaEncontrada = parseInt(match[1], 10);
+          encontrada = true;
+          break;
+        } else {
+          // Si no hay nota, igual marcamos como encontrada si aparece el nombre SOLO si no está seguido de un número
+          const regexNombre = new RegExp(
+            variante.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+            "(?![ \t\r\n]*(6|7|8|9|10))",
+            "i"
+          );
+          if (texto.match(regexNombre)) {
+            encontrada = true;
+            break;
+          }
+        }
+      }
+      if (encontrada) {
+        if (notaEncontrada !== null) {
+          m.estado = 3; // Aprobado
+          m.nota = notaEncontrada;
+        } else {
+          m.estado = 2; // Regular
+          m.nota = 0;
+        }
+      }
+      // Si no aparece, queda pendiente (estado 0)
+    }
   for (const m of nuevasMaterias) {
     const variantes = [m.nombre, ...(equivalencias[m.nombre] || [])];
     let encontrada = false;
@@ -130,6 +171,8 @@ export default function TablaPage() {
 
   // --------------- Export PDF ---------------
   const handleExportPDF = () => {
+    // Exportar el PDF con formato compatible para el importador
+    // Usar los nombres originales de las materias y el formato de nota esperado
     const tableRows: Array<Array<string | number>> = [];
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { DatosMaterias } = require("../../data/plan");
@@ -139,26 +182,31 @@ export default function TablaPage() {
       materiasPorAnio.get(m.anio)!.push(m);
     });
     Array.from(materiasPorAnio.keys()).sort((a, b) => a - b).forEach(anio => {
-      tableRows.push([`${anio}º año`, "", "", "", "", ""]);
       materiasPorAnio.get(anio)!.forEach(m => {
         const materiaOriginal = DatosMaterias.find(mat => mat.id === m.id);
         const nombreBase = materiaOriginal ? materiaOriginal.nombre : m.nombre;
+        let nombreParaPDF = nombreBase;
+        if (m.isElectiva) nombreParaPDF += " ★";
+        let estadoStr = m.estado === 3 ? "Aprobado" : m.estado === 2 ? "Regular" : m.estado === 1 ? "Disponible" : m.estado === 4 ? "En curso" : "No disponible";
+        let notaStr = m.estado === 3 && m.nota ? String(m.nota) : "-";
+        let nombreYNota = nombreParaPDF;
+        if (m.estado === 3 && m.nota) nombreYNota += ` ${m.nota}`;
+        let regStr = "";
+        let aprStr = "";
         tableRows.push([
-          m.id,
-          nombreBase + (m.isElectiva ? " ★" : ""),
+          nombreYNota,
           m.modalidad || "",
-          m.estado === 3 ? "Aprobado" : m.estado === 2 ? "Regular" : m.estado === 1 ? "Disponible" : m.estado === 4 ? "En curso" : "No disponible",
-          m.nota ?? "",
-          m.materiasQueNecesitaRegulares.join(", "),
-          m.materiasQueNecesitaAprobadas.join(", "),
+          estadoStr,
+          notaStr,
+          regStr,
+          aprStr,
         ]);
       });
     });
-
     exportAnaliticoToPDF({
       filename: "analitico-utn.pdf",
       stats: { aprobadas, total, electivas: electivasAprob, promedio: promedioGeneral, porcentaje },
-      tableRows,
+      tableRows: tableRows,
     });
   };
 
@@ -169,7 +217,6 @@ export default function TablaPage() {
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead>
             <tr>
-              <th style={{ border: "1px solid #ccc", padding: 4 }}>ID</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Nombre</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Modalidad</th>
               <th style={{ border: "1px solid #ccc", padding: 4 }}>Estado</th>
@@ -181,12 +228,11 @@ export default function TablaPage() {
           <tbody>
             {filteredMaterias.map(m => (
               <tr key={m.id}>
-                <td style={{ border: "1px solid #ccc", padding: 4 }}>{m.id}</td>
                 <td style={{ border: "1px solid #ccc", padding: 4 }}>
                   {m.nombre}
                   {m.isElectiva && " ★"}
                 </td>
-                <td style={{ border: "1px solid #ccc", padding: 4 }}>{m.modalidad}</td>  {/* 👈 Nueva columna */}
+                <td style={{ border: "1px solid #ccc", padding: 4 }}>{m.modalidad}</td>
                 <td style={{ border: "1px solid #ccc", padding: 4 }}>
                   {m.estado === 3
                     ? "Aprobado"
@@ -444,9 +490,6 @@ export default function TablaPage() {
             ].join(" ")}
           >
             <div className="flex flex-wrap items-center gap-3 max-[600px]:flex-col max-[600px]:items-stretch">
-              <button onClick={handleExportPDF} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
-                Exportar PDF
-              </button>
               <button onClick={handleExportPDF} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
                 Exportar PDF
               </button>
