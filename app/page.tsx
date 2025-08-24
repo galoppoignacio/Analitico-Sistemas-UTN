@@ -2,9 +2,12 @@
 import "../styles/globals.css"
 
 
+
 import Link from "next/link";
+import { useAuth } from "./authContext";
 
 export default function HomePage() {
+  const { user, loginWithGoogle, logout, loading } = useAuth();
   return (
     <main className="my-20 md:mx-auto mx-4 flex min-h-[80vh] max-w-2xl flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 via-sky-100 to-sky-200 px-6 py-12 shadow-md">
 
@@ -18,22 +21,33 @@ export default function HomePage() {
         Gestioná tu plan de estudios, visualizá tu progreso y mantené tus materias organizadas de forma simple y visual.
       </p>
 
-      {/* CTA */}
-      <Link
-        href="/tabla"
-        className="mb-8 inline-flex items-center justify-center rounded-md bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[.98]"
-      >
-        Iniciar
-        <svg
-          className="ml-2 h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+      {/* Login/Logout/Ir a tabla */}
+      {loading ? (
+        <div className="mb-8">Cargando...</div>
+      ) : user ? (
+        <>
+          <div className="mb-4 text-center text-lg text-sky-700">¡Hola, {user.displayName || user.email}!</div>
+          <Link
+            href="/tabla"
+            className="mb-4 inline-flex items-center justify-center rounded-md bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[.98]"
+          >
+            Ir a mis materias
+          </Link>
+          <button
+            onClick={logout}
+            className="mb-8 inline-flex items-center justify-center rounded-md border border-sky-600 bg-white px-6 py-3 text-base font-semibold text-sky-700 shadow-sm transition hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[.98]"
+          >
+            Cerrar sesión
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={loginWithGoogle}
+          className="mb-8 inline-flex items-center justify-center rounded-md bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:scale-[.98]"
         >
-          <path d="M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </Link>
+          Iniciar sesión con Google
+        </button>
+      )}
 
       {/* Créditos */}
       <div className="mt-6 text-center text-sm text-slate-600">

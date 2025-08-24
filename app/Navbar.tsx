@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useCallback } from "react";
+import { useAuth } from "./authContext";
 
 // Responsive navbar con Tailwind + Next.js
 // - Celeste/Azul de fondo
@@ -16,9 +17,11 @@ const links = [
   { href: "/estadisticas", label: "Estadísticas" },
 ];
 
+
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const isActive = useCallback(
     (href: string) => (href === "/" ? pathname === "/" : pathname?.startsWith(href)),
@@ -83,7 +86,7 @@ export default function Navbar() {
         </button>
 
         {/* Links (desktop) */}
-        <div className="hidden gap-1 md:flex">
+        <div className="hidden gap-1 md:flex items-center">
           {links.map((l) => (
             <Link
               key={l.href}
@@ -94,6 +97,15 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          {user && (
+            <button
+              onClick={logout}
+              className={`${baseItem} ${activeItem}`}
+              style={{ marginLeft: 16 }}
+            >
+              Cerrar sesión
+            </button>
+          )}
         </div>
       </div>
 
@@ -116,6 +128,14 @@ export default function Navbar() {
                   {l.label}
                 </Link>
               ))}
+              {user && (
+                <button
+                  onClick={() => { logout(); closeMenu(); }}
+                  className={`${baseItem} ${activeItem} mt-2`}
+                >
+                  Cerrar sesión
+                </button>
+              )}
             </div>
           </div>
         </div>

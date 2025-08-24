@@ -2,6 +2,8 @@
 import "../../styles/globals.css"
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../authContext";
 import { DatosMaterias, Materia } from "../../data/plan";
 import { useMateriasStore } from "../../lib/materiasStore";
 import Navbar from "../Navbar";
@@ -100,15 +102,11 @@ function parsearMateriasDesdePDF(texto: string, materiasBase: Materia[]): Materi
           }
         }
       }
-      if (encontrada) {
-        if (notaEncontrada !== null) {
-          m.estado = 3; // Aprobado
-          m.nota = notaEncontrada;
-        } else {
-          m.estado = 2; // Regular
-          m.nota = 0;
-        }
+      if (encontrada && notaEncontrada !== null) {
+        m.estado = 3; // Aprobado
+        m.nota = notaEncontrada;
       }
+      // Si no aparece o no tiene nota, queda pendiente (estado 0)
       // Si no aparece, queda pendiente (estado 0)
     }
   for (const m of nuevasMaterias) {
@@ -151,23 +149,74 @@ function parsearMateriasDesdePDF(texto: string, materiasBase: Materia[]): Materi
   return nuevasMaterias;
 }
 
+
+
 export default function TablaPage() {
-  // --------------- Refs ---------------
+  // HOOKS AL INICIO
+  const [filterYear, setFilterYear] = useState<number | "all">("all");
+  const [showElectivas, setShowElectivas] = useState(true);
+  const router = useRouter();
+  const { user, loading } = useAuth();
   const statsRef = useRef<HTMLDivElement>(null);
   const tablaRef = useRef<HTMLDivElement>(null);
-
-  // --------------- Store ---------------
   const materias = useMateriasStore((state) => state.materias);
   const setMaterias = useMateriasStore((state) => state.setMaterias);
   const updateMateria = useMateriasStore((state) => state.updateMateria);
+  // Stats
+  const total = useMemo(() => materias.filter(m => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length, [materias]);
+  const aprobadas = useMemo(() => materias.filter(m => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length, [materias]);
+  const electivasAprob = useMemo(() => materias.filter(m => m.isElectiva && m.estado === 3).length, [materias]);
+  const aprobadasConNota = useMemo(() => materias.filter(m => m.estado === 3 && m.nota > 0), [materias]);
+  const promedioGeneral = useMemo(() => aprobadasConNota.length > 0 ? (aprobadasConNota.reduce((acc, m) => acc + m.nota, 0) / aprobadasConNota.length).toFixed(2) : "-", [aprobadasConNota]);
+  const porcentaje = useMemo(() => total > 0 ? ((aprobadas / total) * 100).toFixed(1) : "0", [aprobadas, total]);
+  // Derived hooks (filteredMaterias, promedio, progreso, años) - declare ONCE here
+  const filteredMaterias = useMemo(
+    () =>
+      materias.filter(m => {
+        if (filterYear !== "all" && m.anio !== filterYear) return false;
+        if (!showElectivas && m.isElectiva) return false;
+        return true;
+      }),
+    [materias, filterYear, showElectivas]
+  );
+  const promedio = useMemo(() => {
+    const conNota = filteredMaterias.filter(m => m.nota! > 0);
+    if (!conNota.length) return 0;
+    return Math.round((conNota.reduce((a, m) => a + m.nota!, 0) / conNota.length) * 100) / 100;
+  }, [filteredMaterias]);
+  const progreso = useMemo(() => {
+    let materiasFiltradas = materias.filter(m => m.nombre.toLowerCase() !== "seminario");
+    let total = 0;
+    let aprobadas = 0;
+    if (showElectivas) {
+      const electivas = materiasFiltradas.filter(m => m.isElectiva);
+      const noElectivas = materiasFiltradas.filter(m => !m.isElectiva);
+      total = noElectivas.length + 7;
+      const aprobadasNoElectivas = noElectivas.filter(m => m.estado === 3).length;
+      const aprobadasElectivas = electivas.filter(m => m.estado === 3).length;
+      aprobadas = aprobadasNoElectivas + Math.min(aprobadasElectivas, 7);
+    } else {
+      materiasFiltradas = materiasFiltradas.filter(m => !m.isElectiva);
+      total = materiasFiltradas.length;
+      aprobadas = materiasFiltradas.filter(m => m.estado === 3).length;
+    }
+    return total ? ((aprobadas / total) * 100).toFixed(2) : "0.00";
+  }, [materias, showElectivas]);
+  const años = useMemo(() => {
+    const s = new Set(materias.map(m => m.anio));
+    return Array.from(s).sort((a, b) => a - b);
+  }, [materias]);
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
 
-  // --------------- Stats ---------------
-  const total = materias.filter(m => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
-  const aprobadas = materias.filter(m => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
-  const electivasAprob = materias.filter(m => m.isElectiva && m.estado === 3).length;
-  const aprobadasConNota = materias.filter(m => m.estado === 3 && m.nota > 0);
-  const promedioGeneral = aprobadasConNota.length > 0 ? (aprobadasConNota.reduce((acc, m) => acc + m.nota, 0) / aprobadasConNota.length).toFixed(2) : "-";
-  const porcentaje = total > 0 ? ((aprobadas / total) * 100).toFixed(1) : "0";
+  if (loading || !user) {
+    return <div className="flex h-screen items-center justify-center text-xl">Cargando...</div>;
+  }
+
+  // Eliminar lógica de localStorage para showElectivas
 
   // --------------- Export PDF ---------------
   const handleExportPDF = () => {
@@ -320,37 +369,16 @@ export default function TablaPage() {
     }
   };
 
-  useEffect(() => {
-    const key = `materias_local`;
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        if (Array.isArray(data) && data.length > 0) {
-          setMaterias(data);
-          return;
-        }
-      } catch {}
-    }
-    setMaterias(DatosMaterias);
-    localStorage.setItem(key, JSON.stringify(DatosMaterias));
-  }, [setMaterias]);
-
-  useEffect(() => {
-    const key = `materias_local`;
-    localStorage.setItem(key, JSON.stringify(materias));
-  }, [materias]);
 
   const handleNotaChange = (id: number, nuevaNota: number) => {
     updateMateria(id, { nota: nuevaNota });
   };
 
-  // Importar materias desde JSON o PDF
+  // Importar materias solo desde PDF
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.name.toLowerCase().endsWith('.pdf')) {
-      // Importar desde PDF
       importarAnaliticoPDF(file).then(texto => {
         // Usar DatosMaterias como base
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -359,29 +387,10 @@ export default function TablaPage() {
         // Recalcular estados de correlatividades
         nuevasMaterias = recalcularEstados(nuevasMaterias);
         setMaterias(nuevasMaterias);
-        // Actualizar localStorage manualmente para persistir el cambio
-        localStorage.setItem('materias-utn', JSON.stringify({ state: { materias: nuevasMaterias }, version: 0 }));
       }).catch(() => {
         // No alert, solo log
         console.error('No se pudo leer el PDF.');
       });
-    } else {
-      // Importar desde JSON
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = JSON.parse(event.target?.result as string);
-          if (Array.isArray(data) && data.every(m => typeof m === 'object')) {
-            setMaterias(data);
-            localStorage.setItem('materias-utn', JSON.stringify({ state: { materias: data }, version: 0 }));
-          } else {
-            console.error('El archivo no tiene el formato esperado.');
-          }
-        } catch {
-          console.error('Error al leer el archivo JSON.');
-        }
-      };
-      reader.readAsText(file);
     }
     // Limpiar el input para permitir importar el mismo archivo de nuevo si se desea
     e.target.value = "";
@@ -395,60 +404,7 @@ export default function TablaPage() {
     return okReg && okAprob;
   };
 
-  // 6) Filtros & cálculos
-  const [filterYear, setFilterYear] = useState<number | "all">("all");
-  const [showElectivas, setShowElectivas] = useState(true);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('showElectivas');
-      if (stored === 'false') setShowElectivas(false);
-      if (stored === 'true') setShowElectivas(true);
-    }
-  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("showElectivas", showElectivas ? "true" : "false");
-  }, [showElectivas]);
-
-  const filteredMaterias = useMemo(
-    () =>
-      materias.filter(m => {
-        if (filterYear !== "all" && m.anio !== filterYear) return false;
-        if (!showElectivas && m.isElectiva) return false;
-        return true;
-      }),
-    [materias, filterYear, showElectivas]
-  );
-
-  const promedio = useMemo(() => {
-    const conNota = filteredMaterias.filter(m => m.nota! > 0);
-    if (!conNota.length) return 0;
-    return Math.round((conNota.reduce((a, m) => a + m.nota!, 0) / conNota.length) * 100) / 100;
-  }, [filteredMaterias]);
-
-  const progreso = useMemo(() => {
-    let materiasFiltradas = materias.filter(m => m.nombre.toLowerCase() !== "seminario");
-    let total = 0;
-    let aprobadas = 0;
-    if (showElectivas) {
-      const electivas = materiasFiltradas.filter(m => m.isElectiva);
-      const noElectivas = materiasFiltradas.filter(m => !m.isElectiva);
-      total = noElectivas.length + 7;
-      const aprobadasNoElectivas = noElectivas.filter(m => m.estado === 3).length;
-      const aprobadasElectivas = electivas.filter(m => m.estado === 3).length;
-      aprobadas = aprobadasNoElectivas + Math.min(aprobadasElectivas, 7);
-    } else {
-      materiasFiltradas = materiasFiltradas.filter(m => !m.isElectiva);
-      total = materiasFiltradas.length;
-      aprobadas = materiasFiltradas.filter(m => m.estado === 3).length;
-    }
-    return total ? ((aprobadas / total) * 100).toFixed(2) : "0.00";
-  }, [materias, showElectivas]);
-
-  const años = useMemo(() => {
-    const s = new Set(materias.map(m => m.anio));
-    return Array.from(s).sort((a, b) => a - b);
-  }, [materias]);
 
   // --------------- UI ---------------
   return (
@@ -493,10 +449,10 @@ export default function TablaPage() {
               <button onClick={handleExportPDF} className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
                 Exportar PDF
               </button>
-              {/* Import JSON/PDF */}
+              {/* Importar solo PDF */}
               <label className={`${btnPrimary} min-w-[140px] cursor-pointer`}>
-                Importar JSON/PDF
-                <input type="file" accept="application/json,application/pdf" onChange={handleImport} className="hidden" />
+                Importar PDF
+                <input type="file" accept="application/pdf" onChange={handleImport} className="hidden" />
               </label>
               {/* Filtros */}
               <div className="flex h-10 items-center gap-3 max-[600px]:justify-center">
