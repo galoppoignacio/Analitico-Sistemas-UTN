@@ -7,8 +7,19 @@ import { FaCheckCircle, FaStar, FaChartBar } from "react-icons/fa";
 
 export default function EstadisticasPage() {
   const materias = useMateriasStore((state) => state.materias);
-  const total = materias.filter((m) => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
-  const aprobadas = materias.filter((m) => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length;
+  const total = materias.filter(
+    (m) =>
+      !m.isElectiva &&
+      m.nombre.toLowerCase() !== "seminario" &&
+      m.nombre.toLowerCase() !== "seminario integrador (analista)"
+  ).length;
+  const aprobadas = materias.filter(
+    (m) =>
+      m.estado === 3 &&
+      !m.isElectiva &&
+      m.nombre.toLowerCase() !== "seminario" &&
+      m.nombre.toLowerCase() !== "seminario integrador (analista)"
+  ).length;
   const electivas = materias.filter((m) => m.isElectiva && m.estado === 3).length;
   const aprobadasConNota = materias.filter((m) => m.estado === 3 && m.nota > 0);
   const promedio =

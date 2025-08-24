@@ -41,7 +41,7 @@ export default function Navbar() {
         {/* Brand */}
         <div className="flex items-center gap-2">
           <Link
-            href="/tabla"
+            href="/"
             className="flex items-center gap-2 rounded-xl px-2 py-1 font-semibold tracking-wide text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             onClick={closeMenu}
           >

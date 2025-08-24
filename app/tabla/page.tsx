@@ -163,8 +163,25 @@ export default function TablaPage() {
   const setMaterias = useMateriasStore((state) => state.setMaterias);
   const updateMateria = useMateriasStore((state) => state.updateMateria);
   // Stats
-  const total = useMemo(() => materias.filter(m => !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length, [materias]);
-  const aprobadas = useMemo(() => materias.filter(m => m.estado === 3 && !m.isElectiva && m.nombre.toLowerCase() !== "seminario").length, [materias]);
+  const total = useMemo(() =>
+    materias.filter(
+      m =>
+        !m.isElectiva &&
+        m.nombre.toLowerCase() !== "seminario" &&
+        m.nombre.toLowerCase() !== "seminario integrador (analista)"
+    ).length,
+    [materias]
+  );
+  const aprobadas = useMemo(() =>
+    materias.filter(
+      m =>
+        m.estado === 3 &&
+        !m.isElectiva &&
+        m.nombre.toLowerCase() !== "seminario" &&
+        m.nombre.toLowerCase() !== "seminario integrador (analista)"
+    ).length,
+    [materias]
+  );
   const electivasAprob = useMemo(() => materias.filter(m => m.isElectiva && m.estado === 3).length, [materias]);
   const aprobadasConNota = useMemo(() => materias.filter(m => m.estado === 3 && m.nota > 0), [materias]);
   const promedioGeneral = useMemo(() => aprobadasConNota.length > 0 ? (aprobadasConNota.reduce((acc, m) => acc + m.nota, 0) / aprobadasConNota.length).toFixed(2) : "-", [aprobadasConNota]);
@@ -185,7 +202,9 @@ export default function TablaPage() {
     return Math.round((conNota.reduce((a, m) => a + m.nota!, 0) / conNota.length) * 100) / 100;
   }, [filteredMaterias]);
   const progreso = useMemo(() => {
-    let materiasFiltradas = materias.filter(m => m.nombre.toLowerCase() !== "seminario");
+    let materiasFiltradas = materias.filter(
+      m => m.nombre.toLowerCase() !== "seminario" && m.nombre.toLowerCase() !== "seminario integrador (analista)"
+    );
     let total = 0;
     let aprobadas = 0;
     if (showElectivas) {
@@ -423,18 +442,18 @@ export default function TablaPage() {
               {/* Progreso */}
               <span className={`${pillBadge} bg-[#e8f5e9] text-[#2e7d32]`}>
                 <FaCheckCircle className="-ml-0.5" />
-                <span className="font-bold">{progreso}%</span> completado
+                <span className="font-bold">{progreso}%</span> Completado
               </span>
               {/* Promedio DESTACADO */}
               <span className={`${pillBadge} bg-[#e3f2fd] text-[#0d47a1] ring-1 ring-[#90caf9]/60 shadow-md`}>
                 <FaChartBar className="-ml-0.5" />
                 <span className="text-lg font-black leading-none">{promedio}</span>
-                <span className="opacity-80 font-semibold">promedio</span>
+                <span className="opacity-80 font-semibold">Promedio</span>
               </span>
               {/* Electivas */}
               <span className={`${pillBadge} bg-[#f3e5f5] text-[#6a1b9a]`}>
                 <FaStar className="-ml-0.5" />
-                <span className="font-bold">{electivasAprob}/7</span> electivas aprobadas
+                <span className="font-bold">{electivasAprob}/7</span> Electivas aprobadas
               </span>
             </div>
           </div>
@@ -488,9 +507,8 @@ export default function TablaPage() {
                 style={{ width: `${progreso}%` }}
               />
               <div className="pointer-events-none absolute inset-0 grid place-items-center">
-                <span className="text-xs font-semibold text-white drop-shadow">
-                  {progreso}% completado — <span className="font-black">Promedio: {promedio}</span>
-                </span>
+                <span className="text-xs font-semibold text-[#222]">
+                  {progreso}% Completado</span>
               </div>
             </div>
           </div>
