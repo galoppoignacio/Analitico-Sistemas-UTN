@@ -169,7 +169,7 @@ export default function PasantiasPage() {
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea]">{p.referente}</td>
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea]">{(p.horarioEntrevista || '').replace(/\s*SOLICITA\s*/gi, '').trim()}</td>
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea]">{p.carrera}</td>
-                      <td className="px-3 py-2 align-top border-b border-[#e3e7ea] whitespace-pre-line max-w-[420px]">{p.conocimientos}</td>
+                      <td className="px-3 py-2 align-top border-b border-[#e3e7ea] whitespace-pre-line max-w-[700px]">{p.conocimientos}</td>
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea] whitespace-pre-line max-w-[220px]">{p.otrosRequisitos}</td>
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea] whitespace-pre-line max-w-[160px]">{p.sueldo}</td>
                       <td className="px-3 py-2 align-top border-b border-[#e3e7ea]">{p.horarioTrabajo}</td>
