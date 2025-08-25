@@ -15,6 +15,7 @@ const links = [
   { href: "/tabla", label: "Analítico" },
   { href: "/disponibles", label: "Materias Disponibles" },
   { href: "/estadisticas", label: "Estadísticas" },
+  { href: "/pasantias", label: "Pasantías" },
 ];
 
 

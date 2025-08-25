@@ -1,7 +1,8 @@
-"use client";
-import "../../styles/globals.css"
 
+"use client";
+import "../../styles/globals.css";
 import { useState, useMemo, useEffect, useRef } from "react";
+import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../authContext";
 import { DatosMaterias, Materia } from "../../data/plan";
@@ -10,6 +11,55 @@ import Navbar from "../Navbar";
 import { FaCheckCircle, FaStar, FaChartBar } from "react-icons/fa";
 import { exportAnaliticoToPDF } from "../../lib/exportPDF";
 import dynamic from "next/dynamic";
+// Parsea el texto extraído del PDF del analítico y lo convierte en un array de Materia
+function parsearMateriasDesdePDF(texto: string, datosBase: Materia[]): Materia[] {
+  // Normaliza el texto y lo divide en líneas
+  const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  // Busca materias por nombre (ignorando mayúsculas/minúsculas y tildes)
+  function normalizarNombre(nombre: string) {
+    return nombre
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .replace(/[^a-z0-9 ]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  // Crea un mapa de nombres normalizados a Materia base
+  const mapaMaterias = new Map(
+    datosBase.map(m => [normalizarNombre(m.nombre), { ...m }])
+  );
+  // Busca líneas que contengan nombre de materia y nota
+  const materiasImportadas: Materia[] = [];
+  for (const linea of lineas) {
+    // Ejemplo de línea: "Álgebra y Geometría Analítica 8"
+    const match = linea.match(/^(.+?)\s+(\d{1,2})$/);
+    if (match) {
+      const nombre = match[1];
+      const nota = parseInt(match[2], 10);
+      const nombreNorm = normalizarNombre(nombre);
+      const materiaBase = mapaMaterias.get(nombreNorm);
+      if (materiaBase) {
+        materiasImportadas.push({
+          ...materiaBase,
+          estado: 3, // Aprobado
+          nota,
+        });
+      }
+    }
+  }
+  // Marca como aprobadas las materias encontradas, el resto queda igual que en datosBase
+  const idsAprobadas = new Set(materiasImportadas.map(m => m.id));
+  return datosBase.map(m => {
+    if (idsAprobadas.has(m.id)) {
+      return materiasImportadas.find(x => x.id === m.id)!;
+    }
+    return { ...m, estado: 0, nota: undefined };
+  });
+}
+
+
+
 // No importar pdfjs-dist arriba, usar dynamic import dentro de la función para evitar errores en Next.js
 // Función para importar PDF de analítico de la facultad
 async function importarAnaliticoPDF(file: File): Promise<string> {
@@ -50,113 +100,35 @@ async function importarAnaliticoPDF(file: File): Promise<string> {
   }
 }
 
-// Utilidad para normalizar texto: minúsculas, sin tildes, sin signos, sin espacios
-function normalizarTexto(str: string): string {
-  return str
-    .replace(/[\r\n]+/g, " ") // reemplazar saltos de línea por espacio
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // quitar tildes
-    .replace(/[^a-z0-9áéíóúüñ\s]/gi, "") // quitar signos
-    .replace(/\s+/g, "") // quitar todos los espacios
-    .trim();
-}
-
-// Parsear materias desde el texto extraído del PDF
-function parsearMateriasDesdePDF(texto: string, materiasBase: Materia[]): Materia[] {
-  // Tabla de equivalencias: nombre actual -> variantes posibles
-  const equivalencias: Record<string, string[]> = {
-    "Sistemas y Procesos de Negocios": ["SPN", "SOR", "Sistemas y Organizaciones"],
-    "Lógica y Estructuras Discretas": ["LED", "MAD", "Matemática Discreta"],
-    "Base de Datos": ["BDA", "GDA", "Gestión de Datos"],
-  };
-  const textoNorm = normalizarTexto(texto);
-    const nuevasMaterias = materiasBase.map(m => ({ ...m, estado: 0, nota: 0 }));  
-  
-    for (const m of nuevasMaterias) {
-      const variantes = [m.nombre, ...(equivalencias[m.nombre] || [])];
-      let encontrada = false;
-      let notaEncontrada: number | null = null;
-      for (const variante of variantes) {
-        // Regex: nombre + solo espacios/saltos de línea + nota (6-10) + palabra separadora o fin
-        const regex = new RegExp(
-          variante.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
-          "[ \t\r\n]{1,5}(6|7|8|9|10)(?![0-9])",
-          "i"
-        );
-        const match = texto.match(regex);
-        if (match) {
-          notaEncontrada = parseInt(match[1], 10);
-          encontrada = true;
-          break;
-        } else {
-          // Si no hay nota, igual marcamos como encontrada si aparece el nombre SOLO si no está seguido de un número
-          const regexNombre = new RegExp(
-            variante.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
-            "(?![ \t\r\n]*(6|7|8|9|10))",
-            "i"
-          );
-          if (texto.match(regexNombre)) {
-            encontrada = true;
-            break;
-          }
-        }
-      }
-      if (encontrada && notaEncontrada !== null) {
-        m.estado = 3; // Aprobado
-        m.nota = notaEncontrada;
-      }
-      // Si no aparece o no tiene nota, queda pendiente (estado 0)
-      // Si no aparece, queda pendiente (estado 0)
-    }
-  for (const m of nuevasMaterias) {
-    const variantes = [m.nombre, ...(equivalencias[m.nombre] || [])];
-    let encontrada = false;
-    let notaEncontrada: number | null = null;
-    for (const variante of variantes) {
-      const varianteNorm = normalizarTexto(variante);
-      const idx = textoNorm.indexOf(varianteNorm);
-      if (idx !== -1) {
-        // Buscar la nota en los siguientes 20 caracteres del texto original (sin normalizar)
-        // Busco la posición del nombre en el texto original (puede haber diferencias por normalización, pero es lo más robusto posible)
-        const textoSinEspacios = texto.replace(/[\r\n]+/g, " ").replace(/\s+/g, "");
-        const varianteSinEspacios = variante.replace(/[\r\n]+/g, " ").replace(/\s+/g, "");
-        const idxOrig = textoSinEspacios.toLowerCase().indexOf(varianteSinEspacios.toLowerCase());
-        let ventana = "";
-        if (idxOrig !== -1) {
-          ventana = textoSinEspacios.slice(idxOrig + varianteSinEspacios.length, idxOrig + varianteSinEspacios.length + 20);
-        }
-        // Buscar número entre 6 y 10 en la ventana
-        const matchNota = ventana.match(/([6-9]|10)/);
-        if (matchNota && matchNota[1]) {
-          notaEncontrada = parseInt(matchNota[1], 10);
-        }
-        encontrada = true;
-        break;
-      }
-    }
-    if (encontrada) {
-      if (notaEncontrada !== null) {
-        m.estado = 3; // Aprobado
-        m.nota = notaEncontrada;
-      } else {
-        m.estado = 2; // Regular
-        m.nota = 0;
-      }
-    }
-    // Si no aparece, queda pendiente (estado 0)
-  }
-  return nuevasMaterias;
-}
-
 
 
 export default function TablaPage() {
   // HOOKS AL INICIO
-  const [filterYear, setFilterYear] = useState<number | "all">("all");
-  const [showElectivas, setShowElectivas] = useState(true);
   const router = useRouter();
   const { user, loading } = useAuth();
+  const [filterYear, setFilterYear] = useState<number | "all">("all");
+  const [showElectivas, setShowElectivas] = useState<boolean>(true);
+  const [loadingPrefs, setLoadingPrefs] = useState(true);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  // Cargar preferencia desde Supabase al iniciar
+  useEffect(() => {
+    if (user && user.uid) {
+      setLoadingPrefs(true);
+      supabase
+        .from('user_prefs')
+        .select('show_electivas')
+        .eq('user_id', user.uid)
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && typeof data.show_electivas === 'boolean') {
+            setShowElectivas(data.show_electivas);
+          }
+          setLoadingPrefs(false);
+        });
+    } else {
+      setLoadingPrefs(false);
+    }
+  }, [user]);
   const statsRef = useRef<HTMLDivElement>(null);
   const tablaRef = useRef<HTMLDivElement>(null);
   const materias = useMateriasStore((state) => state.materias);
@@ -231,7 +203,17 @@ export default function TablaPage() {
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+
+  // Guardar preferencia en Supabase al cambiar, solo si ya se cargó la preferencia inicial y fue por interacción del usuario
+  useEffect(() => {
+    if (user && user.uid && !loadingPrefs && hasUserInteracted) {
+      supabase.from('user_prefs').upsert([
+        { user_id: user.uid, show_electivas: showElectivas }
+      ], { onConflict: 'user_id' });
+    }
+  }, [showElectivas, user, loadingPrefs, hasUserInteracted]);
+
+  if (loading || !user || loadingPrefs) {
     return <div className="flex h-screen items-center justify-center text-xl">Cargando...</div>;
   }
 
@@ -480,7 +462,10 @@ export default function TablaPage() {
                   <input
                     type="checkbox"
                     checked={showElectivas}
-                    onChange={() => setShowElectivas(v => !v)}
+                    onChange={() => {
+                      setShowElectivas(v => !v);
+                      setHasUserInteracted(true);
+                    }}
                     className="peer sr-only"
                   />
                   <span className="absolute inset-0 cursor-pointer rounded-full bg-[#cfd8dc] transition before:absolute before:left-[3px] before:bottom-[3px] before:h-[18px] before:w-[18px] before:rounded-full before:bg-white before:shadow before:transition peer-checked:bg-[#4caf50] peer-checked:before:translate-x-[26px]" />
@@ -579,10 +564,12 @@ export default function TablaPage() {
                                 )}
                               </div>
                             </td>
-                            <td className={tdBase}>{m.modalidad}</td>  {/* 👈 Nueva columna */}
+                              <td className={tdBase}>
+                                {m.modalidad}
+                              </td>
                             <td className={tdBase}>
                               {!checkDependencies(m) ? (
-                                <span className="italic text-[#999]">{"No disponible"}</span>
+                                <span className="italic text-[#999]">No disponible</span>
                               ) : (
                                 <select
                                   className="font-bold text-black appearance-none bg-white border border-[#bbb] rounded px-3 pr-8 py-1 cursor-pointer focus:outline-none focus:border-[#4caf50] focus:[box-shadow:0_0_0_3px_rgba(76,175,80,0.25)]"
