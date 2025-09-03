@@ -54,11 +54,6 @@ export default function PasantiasPage() {
         if (val && val !== '-') set.add(val);
       });
     });
-    // Log temporal para depuración
-    if (debugCarreras.length) {
-      // eslint-disable-next-line no-console
-      console.log('CARRERAS RAW Y NORMALIZADAS:', debugCarreras);
-    }
     setAllCarreras(Array.from(set).sort());
   }, [pasantias]);
 
