@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
+import { extraerCarrerasNormalizadas } from '../../lib/mapeoCarreras';
 import Navbar from '../Navbar';
 
 interface Pasantia {
@@ -45,12 +46,19 @@ export default function PasantiasPage() {
   const [allCarreras, setAllCarreras] = useState<string[]>([]);
   useEffect(() => {
     const set = new Set<string>();
+    const debugCarreras: { raw: string, normalizadas: string[] }[] = [];
     pasantias.forEach(p => {
-      p.carrera.split(/,|\//).forEach(c => {
-        const val = c.trim();
+      const normalizadas = extraerCarrerasNormalizadas(p.carrera);
+      debugCarreras.push({ raw: p.carrera, normalizadas });
+      normalizadas.forEach(val => {
         if (val && val !== '-') set.add(val);
       });
     });
+    // Log temporal para depuración
+    if (debugCarreras.length) {
+      // eslint-disable-next-line no-console
+      console.log('CARRERAS RAW Y NORMALIZADAS:', debugCarreras);
+    }
     setAllCarreras(Array.from(set).sort());
   }, [pasantias]);
 
@@ -59,7 +67,7 @@ export default function PasantiasPage() {
     if (!selectedCarreras.length) return pasantias;
     return pasantias.filter(p =>
       selectedCarreras.some(sel =>
-        p.carrera.split(/,|\//).map(c => c.trim()).includes(sel)
+        extraerCarrerasNormalizadas(p.carrera).includes(sel)
       )
     );
   }, [pasantias, selectedCarreras]);
